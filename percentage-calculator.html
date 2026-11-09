@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Percentage Calculator</title>
+<style>
+:root{--bg:#f4f7fb;--ink:#17202b;--card:#fff;--line:#d5dee9;--acc:#1f6feb;--accI:#fff;--mute:#667385;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--ink:#e6edf3;--card:#161b22;--line:#30363d;--acc:#58a6ff;--accI:#06182e;--mute:#8b949e}}
+:root[data-theme="dark"]{--bg:#0d1117;--ink:#e6edf3;--card:#161b22;--line:#30363d;--acc:#58a6ff;--accI:#06182e;--mute:#8b949e}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1{font-size:26px;margin:4px 0 12px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+button{font:inherit;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-align:center}
+button.on{background:var(--acc);border-color:var(--acc);color:var(--accI)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+.card p{margin:0 0 8px;color:var(--mute);font-size:15px}
+.eq{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:17px}
+input{font:inherit;width:100%;min-width:0;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.eq input{width:auto;flex:1;min-width:90px;max-width:160px}
+.res{margin-top:14px;font-size:30px;font-weight:700;color:var(--acc);word-break:break-word}
+.sub{font-size:15px;color:var(--mute);margin-top:4px}
+.err{color:#d1453b;font-size:15px;margin-top:10px;min-height:20px}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Percentage Calculator</h1>
+<div class="tabs" id="tabs"></div>
+<div class="card" id="panel"></div>
+<div class="err" id="err" aria-live="polite"></div>
+<script>
+const $=id=>document.getElementById(id);
+const MODES=[
+ {n:'X% of Y',p:'What is X% of Y?',f:[['X','%'],['of Y','']],k:['pct','of'],calc:(a,b)=>a*b/100,fmt:(r,a,b)=>`${a}% of ${b} is`,sub:()=>'',unit:''},
+ {n:'X is what %',p:'X is what % of Y?',f:[['X',''],['of Y','']],k:['a','of'],calc:(a,b)=>a/b*100,fmt:(r,a,b)=>`${a} is`,sub:(a,b)=>`of ${b}`,unit:'%'},
+ {n:'% change',p:'Change from A to B',f:[['from A',''],['to B','']],k:['a','b'],calc:(a,b)=>(b-a)/Math.abs(a)*100,fmt:(r)=>`Change from ${r.a} to ${r.b}`,sub:()=>'',unit:'%',signed:true},
+ {n:'Add %',p:'Add X% to Y',f:[['Y',''],['add X%','%']],k:['y','x'],calc:(y,x)=>y*(1+x/100),fmt:(r)=>`${r.y} plus ${r.x}% is`,sub:()=>'',unit:''},
+ {n:'Subtract %',p:'Subtract X% from Y',f:[['Y',''],['take off X%','%']],k:['y','x'],calc:(y,x)=>y*(1-x/100),fmt:(r)=>`${r.y} minus ${r.x}% is`,sub:()=>'',unit:''},
+ {n:'Reverse %',p:'X is P% of what number?',f:[['X',''],['is P%','%']],k:['x','p'],calc:(x,p)=>x/(p/100),fmt:(r)=>`${r.x} is ${r.p}% of`,sub:()=>'',unit:''}
+];
+let cur=0;
+function num(v){const n=parseFloat(v);return isNaN(n)?null:n}
+function r2(x){return Math.round(x*1e6)/1e6}
+function tabs(){const t=$('tabs');t.textContent='';MODES.forEach((m,i)=>{const b=document.createElement('button');b.textContent=m.n;if(i===cur)b.className='on';b.onclick=()=>{cur=i;tabs();panel()};t.appendChild(b)})}
+function panel(){
+ const m=MODES[cur],p=$('panel');p.innerHTML='';
+ const pa=document.createElement('p');pa.textContent=m.p;p.appendChild(pa);
+ const eq=document.createElement('div');eq.className='eq';
+ const ins=[];
+ m.f.forEach(([lab,suf],i)=>{const sp=document.createElement('span');sp.textContent=lab;eq.appendChild(sp);
+  const inp=document.createElement('input');inp.type='number';inp.inputMode='decimal';inp.step='any';inp.placeholder='0';inp.id='in'+i;inp.oninput=go;eq.appendChild(inp);ins.push(inp);
+  if(suf){const s=document.createElement('span');s.textContent=suf;eq.appendChild(s)}});
+ p.appendChild(eq);
+ const res=document.createElement('div');res.className='res';res.id='res';p.appendChild(res);
+ const sub=document.createElement('div');sub.className='sub';sub.id='sub';p.appendChild(sub);
+ const h=document.createElement('p');h.style.marginTop='12px';h.textContent=help[cur];p.appendChild(h);
+ $('err').textContent='';go();
+}
+const help=[
+ 'Example: 15% of 200 gives 30.',
+ 'Example: 30 is what % of 200? Gives 15%.',
+ 'Example: from 50 to 75 gives +50%. Negative numbers mean a decrease.',
+ 'Example: 200 plus 10% gives 220.',
+ 'Example: 200 minus 10% gives 180.',
+ 'Example: 30 is 15% of what? Gives 200.'
+];
+function go(){
+ const m=MODES[cur],v=[...document.querySelectorAll('#panel input')].map(i=>num(i.value));
+ const res=$('res'),sub=$('sub');res.textContent='';sub.textContent='';$('err').textContent='';
+ if(v.some(x=>x===null)){res.textContent='—';return}
+ const [a,b]=v;
+ if(cur===0){res.textContent=r2(m.calc(a,b));sub.textContent=`${a}% of ${b}`;return}
+ if(cur===1){if(b===0){$('err').textContent='Y cannot be zero.';res.textContent='—';return}res.textContent=r2(m.calc(a,b))+'%';sub.textContent=`${a} is ${r2(m.calc(a,b))}% of ${b}`;return}
+ if(cur===2){if(a===0){$('err').textContent='A cannot be zero for a percentage change.';res.textContent='—';return}const c=m.calc(a,b);res.textContent=(c>0?'+':'')+r2(c)+'%';sub.textContent=`from ${a} to ${b} is ${c>0?'an increase':c<0?'a decrease':'no change'}`;return}
+ if(cur===3||cur===4){res.textContent=r2(m.calc(a,b));sub.textContent=cur===3?`${a} + ${b}% of ${a}`:`${a} − ${b}% of ${a}`;return}
+ if(cur===5){if(b===0){$('err').textContent='P cannot be zero.';res.textContent='—';return}res.textContent=r2(m.calc(a,b));sub.textContent=`${a} is ${b}% of ${r2(m.calc(a,b))}`}
+}
+tabs();panel();
+</script></main><style>.help{max-width:640px;margin:24px auto 40px;padding:0 16px;font-family:system-ui,sans-serif;color:inherit;line-height:1.5}
+.help h2{font-size:18px;margin:0 0 6px}.help h3{font-size:15px;margin:18px 0 4px}.help p,.help li{font-size:15px;opacity:.9;margin:4px 0}
+.help details{border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:8px 12px;margin:6px 0}
+.help summary{cursor:pointer;font-weight:600;font-size:15px}.help details p{margin:6px 0 2px}</style>
+<section class="help" aria-label="How to use and FAQ"><h2>How to use</h2><p>Pick the mode at the top, type the numbers into the boxes, and read the answer. Each mode shows an example underneath.</p><h3>FAQ</h3><details><summary>Which mode do I need?</summary><p>Use X% of Y for a share of a number, X is what % for a ratio, and % change to compare two values.</p></details><details><summary>Why does it show a dash?</summary><p>A box is empty, or a value cannot be used, such as a zero divisor.</p></details><details><summary>Can I use negative numbers?</summary><p>Yes, for % change negative numbers show a decrease.</p></details></section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

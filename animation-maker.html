@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Animation Maker</title>
+<style>
+:root{--bg:#f1efe9;--ink:#222;--card:#fff;--line:#d2cdc0;--acc:#c2410c;--accI:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--ink:#ecebe6;--card:#222226;--line:#3a3a40;--acc:#fb923c;--accI:#1a1208}}
+:root[data-theme="dark"]{--bg:#17171a;--ink:#ecebe6;--card:#222226;--line:#3a3a40;--acc:#fb923c;--accI:#1a1208}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",sans-serif;font-size:17px}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:28px;margin:4px 0 2px}p.s{margin:0 0 14px;opacity:.75}
+textarea{width:100%;font:inherit;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+button{font:inherit;padding:9px 13px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.on,button.go{border-color:var(--acc);background:var(--acc);color:var(--accI)}
+button.go{width:100%;padding:13px;font-size:19px}button:disabled{opacity:.5}
+#out{width:100%;aspect-ratio:16/9;background:#111;border-radius:14px;margin-top:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#ddd;text-align:center;padding:10px}
+#out img{width:100%;height:100%;display:block}
+.lbl{margin:8px 0 0;opacity:.7}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Animation Maker</h1>
+<p class="s">Describe a scene. It gets drawn and animated, in any style you pick.</p>
+<textarea id="q" rows="3">A little rocket flies up from a hill at night, past twinkling stars and a moon, then lands on a purple planet</textarea>
+<p class="lbl">Style</p>
+<div class="row" id="styles"></div>
+<p class="lbl">Length</p>
+<div class="row" id="lens"></div>
+<button class="go" id="go">Make animation</button>
+<div id="out">Your animation will play here.</div>
+<div class="row"><button id="again" disabled>Another take</button><button id="replay" disabled>Replay</button><button id="save" disabled>Save</button></div>
+</main>
+<script>
+const STY={
+ Cartoon:'colorful cartoon with bold dark outlines and flat bright fills, bouncy squash-and-stretch motion',
+ 'Line draw':'black ink line drawing on cream paper where every outline draws itself on using stroke-dasharray/stroke-dashoffset animation, then moves',
+ Flat:'modern flat-design with smooth shapes, no outlines, soft pastel palette, gentle easing',
+ Neon:'glowing neon lines on a dark night background (use stroke colors only, no filters), pulsing and drifting',
+ Stick:'simple stick-figure animation: black lines, round heads, jerky frame-like motion, white background'
+};
+const LEN={Short:'about 4 seconds',Medium:'about 8 seconds',Long:'about 12 seconds'};
+let style='Cartoon',len='Medium',svg='',busy=false,sample=null;
+const out=document.getElementById('out'),$=id=>document.getElementById(id),q=$('q');
+function chips(el,obj,get,set){Object.keys(obj).forEach(n=>{const b=document.createElement('button');b.textContent=n;if(n===get())b.className='on';
+ b.onclick=()=>{set(n);[...el.children].forEach(c=>c.className=c.textContent===n?'on':'')};el.appendChild(b)})}
+chips($('styles'),STY,()=>style,v=>style=v);chips($('lens'),LEN,()=>len,v=>len=v);
+(async()=>{try{sample=await claude.use('sample')}catch(e){}if(!sample)out.textContent='Needs the Claude viewer. Open this page in claude.ai.'})();
+function show(){out.textContent='';const i=new Image();i.alt='Animation';i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);out.appendChild(i)}
+async function go(){
+ if(busy)return;const t=q.value.trim();if(!t)return;
+ if(!sample){try{sample=await claude.use('sample')}catch(e){}if(!sample){out.textContent='Needs the Claude viewer. Open this page in claude.ai.';return}}
+ busy=true;['go','again','replay','save'].forEach(i=>$(i).disabled=true);
+ let n=0;const tk=setInterval(()=>{out.textContent='Animating'+'.'.repeat(1+n++%3)},500);
+ const p='You are an animator. Make an animated SVG of this scene: "'+t+'"\n\nRules:\n- Output ONLY one <svg> element, no markdown, no explanation.\n- viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg". Always start with a full-size background <rect>.\n- Animate with CSS @keyframes inside a <style> element in the SVG (transform, opacity, stroke-dashoffset). Use transform-box:fill-box; transform-origin:center on animated elements. Give shapes classes and different animation-delay values so the story plays in order.\n- Total loop length '+LEN[len]+', animation-iteration-count:infinite for the main loop, and make the end blend back to the start.\n- Tell a small story with several moving things (character, background, motion), not just one spinning shape.\n- Style: '+STY[style]+'.\n- Never use images, <text>, filters, gradients, scripts, foreignObject or external references. Keep it under 9000 characters.\n- Seed: '+Math.floor(Math.random()*99999);
+ try{
+  const r=await sample(p,{cache:false,modelTier:'default'});
+  const m=r.text.match(/<svg[\s\S]*<\/svg>/i);if(!m)throw new Error('none');
+  svg=m[0].replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi,'').replace(/\son\w+="[^"]*"/gi,'');
+  if(!/xmlns=/.test(svg))svg=svg.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+  clearInterval(tk);show();['again','replay','save'].forEach(i=>$(i).disabled=false);
+ }catch(e){clearInterval(tk);out.textContent=(e&&e.code==='not_granted')?'Allow Claude to animate when asked, then tap Make animation again.':(e&&e.code==='rate_limited')?'Too many requests. Wait a moment and try again.':'That animation failed. Tap Make animation to retry.'}
+ busy=false;$('go').disabled=false;
+}
+$('go').onclick=go;$('again').onclick=go;$('replay').onclick=()=>{if(svg)show()};
+$('save').onclick=async()=>{try{const d=await claude.use('downloads');if(!d||!svg)return;await d.save({filename:'animation.svg',data:svg})}catch(e){}};
+</script><style>.help{max-width:640px;margin:24px auto 40px;padding:0 16px;font-family:system-ui,sans-serif;color:inherit;line-height:1.5}
+.help h2{font-size:18px;margin:0 0 6px}.help h3{font-size:15px;margin:18px 0 4px}.help p,.help li{font-size:15px;opacity:.9;margin:4px 0}
+.help details{border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:8px 12px;margin:6px 0}
+.help summary{cursor:pointer;font-weight:600;font-size:15px}.help details p{margin:6px 0 2px}</style>
+<section class="help" aria-label="How to use and FAQ"><h2>How to use</h2><p>Describe a scene, pick a style and length, then tap Make animation. Use Another take for a new version, or Save to download an animated SVG.</p><h3>FAQ</h3><details><summary>Why does it say to open in claude.ai?</summary><p>This tool uses Claude to make animations, so it works only inside claude.ai.</p></details><details><summary>Can I get an MP4 video?</summary><p>No, the output is an animated SVG that plays in a browser. Use Frame Studio for video export.</p></details><details><summary>Why is it slow?</summary><p>Making an animation takes a little while. Wait for the message to finish.</p></details></section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

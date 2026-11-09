@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marks Percentage Calculator</title>
+<style>
+:root{--bg:#f3f8f5;--ink:#15261f;--card:#fff;--line:#d3e3da;--acc:#197a56;--accI:#fff;--mute:#5f7a6f;--bad:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a15;--ink:#e3f2ea;--card:#162620;--line:#2a4038;--acc:#4fd1a0;--accI:#04190f;--mute:#9bb8ac;--bad:#ff7b6b}}
+:root[data-theme="dark"]{--bg:#0e1a15;--ink:#e3f2ea;--card:#162620;--line:#2a4038;--acc:#4fd1a0;--accI:#04190f;--mute:#9bb8ac;--bad:#ff7b6b}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px}
+main{max-width:620px;margin:0 auto;padding:14px}
+h1{font-size:25px;margin:4px 0 4px}
+.sub{color:var(--mute);font-size:14px;margin:0 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+select,input,button{font:inherit}
+select,input{padding:9px 10px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);min-width:0}
+button{padding:9px 13px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+button.x{padding:6px 10px;color:var(--bad)}
+.table{margin-top:12px;display:grid;gap:8px}
+.sr{display:grid;grid-template-columns:1fr 84px 84px auto;gap:8px;align-items:center}
+.sr input{width:100%}
+.hd{display:grid;grid-template-columns:1fr 84px 84px auto;gap:8px;font-size:13px;color:var(--mute);padding:0 2px}
+.res{margin-top:16px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;text-align:center}
+.big{font-size:46px;font-weight:800;color:var(--acc);line-height:1.1}
+.grade{display:inline-block;margin-top:8px;padding:5px 14px;border-radius:999px;background:var(--acc);color:var(--accI);font-weight:700}
+.pass{color:var(--acc);font-weight:600;margin-top:8px}.fail{color:var(--bad);font-weight:600;margin-top:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:15px}
+.stats div{background:var(--bg);border-radius:10px;padding:8px}
+.stats b{display:block;font-size:18px}
+.err{color:var(--bad);font-size:14px;min-height:20px;margin-top:6px}
+.tag{font-size:13px;color:var(--mute);margin-top:10px}
+@media (max-width:460px){.sr,.hd{grid-template-columns:1fr 64px 64px auto}}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Marks Percentage Calculator 🎓</h1>
+<p class="sub">Enter each subject's marks to get your total, percentage and grade. Works for class 6th to 12th.</p>
+<div class="row">
+ <select id="cls"></select>
+ <select id="scale"><option value="cbse">A1 to E grade (CBSE style)</option><option value="letter">A+ to F grade</option></select>
+</div>
+<div class="table">
+ <div class="hd"><span>Subject</span><span>Marks got</span><span>Out of</span><span></span></div>
+ <div id="rows" style="display:grid;gap:8px"></div>
+</div>
+<div class="row" style="margin-top:10px">
+ <button id="add">＋ Add subject</button>
+ <button id="reset">Reset</button>
+</div>
+<div class="err" id="err" aria-live="polite"></div>
+<div class="res" id="res"></div>
+<p class="tag" id="tag"></p>
+
+<section class="help" style="margin-top:26px;font-size:15px;line-height:1.5">
+ <h2 style="font-size:18px;margin:0 0 6px">How to use</h2>
+ <p>Pick your class. Type the name of each subject, the marks you got, and the maximum marks for that subject. Add or remove subjects as needed. Your percentage, grade and pass or fail status update as you type.</p>
+ <h3 style="font-size:15px;margin:16px 0 4px">FAQ</h3>
+ <details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0"><summary style="cursor:pointer;font-weight:600">How is the percentage worked out?</summary><p>Total marks you got, divided by total maximum marks, times 100. Subjects with different maximum marks are handled correctly.</p></details>
+ <details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0"><summary style="cursor:pointer;font-weight:600">What is the passing mark?</summary><p>This page uses 33% as the pass mark, which is common in India. Your school may set its own.</p></details>
+ <details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0"><summary style="cursor:pointer;font-weight:600">Why is my grade different from my school's?</summary><p>Grade scales vary between boards and schools. Choose the scale that matches your report card, or use the percentage to check against your school's chart.</p></details>
+ <details style="border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0"><summary style="cursor:pointer;font-weight:600">Does it save my marks?</summary><p>No. Marks are only kept while the page is open, so write down your result if you need it later.</p></details>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const DEF=[['English',80,100],['Hindi',75,100],['Mathematics',90,100],['Science',85,100],['Social Science',70,100]];
+const cls=$('cls');for(let i=6;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=i+'th class'.replace('th',i===1||i===2||i===3?'':'th');o.textContent='Class '+i+(i===6?'':'');cls.appendChild(o)}
+cls.value='9';
+const CBSE=[[91,'A1'],[81,'A2'],[71,'B1'],[61,'B2'],[51,'C1'],[41,'C2'],[33,'D'],[0,'E']];
+const LET=[[90,'A+'],[80,'A'],[70,'B+'],[60,'B'],[50,'C+'],[40,'C'],[33,'D'],[0,'F']];
+const PASS=33;
+function mk(n='',g='',m=100){const r=document.createElement('div');r.className='sr';
+ r.innerHTML='<input type="text" placeholder="Subject" maxlength="30" value="'+n.replace(/"/g,'&quot;')+'"><input type="number" inputmode="decimal" min="0" step="any" placeholder="0" value="'+g+'"><input type="number" inputmode="decimal" min="1" step="any" placeholder="100" value="'+m+'"><button class="x" aria-label="Remove subject">✕</button>';
+ r.querySelectorAll('input').forEach(i=>i.oninput=calc);r.querySelector('button').onclick=()=>{if($('rows').children.length>1){r.remove();calc()}};return r}
+function load(list){$('rows').textContent='';list.forEach(a=>$('rows').appendChild(mk(...a)));calc()}
+function calc(){
+ const err=$('err'),res=$('res');err.textContent='';
+ const rows=[...$('rows').children].map(r=>{const i=r.querySelectorAll('input');return{n:i[0].value.trim(),g:i[1].value,m:i[2].value}});
+ let tg=0,tm=0,ok=0,bad='';
+ rows.forEach((r,idx)=>{if(r.g===''&&r.m==='')return;const g=parseFloat(r.g),m=parseFloat(r.m);
+  if(r.g===''||isNaN(g)){bad=bad||'Enter marks for '+(r.n||'subject '+(idx+1))+'.';return}
+  if(isNaN(m)||m<=0){bad=bad||'Enter a maximum (more than 0) for '+(r.n||'subject '+(idx+1))+'.';return}
+  if(g<0||g>m){bad=bad||(r.n||'Subject '+(idx+1))+': marks must be between 0 and '+m+'.';return}
+  tg+=g;tm+=m;ok++});
+ if(bad){err.textContent=bad;res.innerHTML='';$('tag').textContent='';return}
+ if(!ok){res.innerHTML='<div style="color:var(--mute)">Enter marks to see your result.</div>';$('tag').textContent='';return}
+ const p=tg/tm*100,pr=Math.round(p*100)/100,sc=$('scale').value==='cbse'?CBSE:LET;
+ const gr=(sc.find(([min])=>p>=min)||sc[sc.length-1])[1],pass=p>=PASS;
+ res.innerHTML='<div class="big">'+pr.toFixed(2).replace(/\.00$/,'')+'%</div><div class="grade">Grade '+gr+'</div><div class="'+(pass?'pass':'fail')+'">'+(pass?'Passed':'Not passed (pass mark '+PASS+'%)')+'</div>'+
+ '<div class="stats"><div>Total got<b>'+tg.toLocaleString()+'</b></div><div>Total out of<b>'+tm.toLocaleString()+'</b></div><div>Subjects<b>'+ok+'</b></div><div>Average per subject<b>'+(tg/ok).toFixed(1)+'</b></div></div>';
+ $('tag').textContent='Class '+cls.value+' · '+(sc===CBSE?'A1 to E scale':'A+ to F scale')+'. Check your school\'s own scale if it differs.'}
+$('add').onclick=()=>{$('rows').appendChild(mk('',"",100));calc()};
+$('reset').onclick=()=>load(DEF);
+$('scale').onchange=calc;cls.onchange=calc;
+load(DEF);
+</script></main><footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

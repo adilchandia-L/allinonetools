@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YouTube Thumbnail Downloader</title>
+<style>
+:root{--bg:#fff5f5;--ink:#2a1717;--card:#fff;--line:#f3d4d4;--acc:#dc2626;--accI:#fff;--mute:#7d5a5a;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#170d0d;--ink:#fbe9e9;--card:#231414;--line:#4a2525;--acc:#f87171;--accI:#2a0606;--mute:#c9a3a3;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#170d0d;--ink:#fbe9e9;--card:#231414;--line:#4a2525;--acc:#f87171;--accI:#2a0606;--mute:#c9a3a3;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:17px;line-height:1.45}
+main{max-width:620px;margin:0 auto;padding:16px}
+h1{font-size:26px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 14px;font-size:16px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+input{width:100%;font:inherit;font-size:17px;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+button,a.btn{font:inherit;display:inline-block;padding:11px 15px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;text-align:center}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.err{color:#dc2626;font-size:15px;min-height:22px;margin-top:8px}
+.ok{color:var(--good);font-size:14px;min-height:20px;margin-top:6px}
+.sz{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.sz:last-child{border-bottom:0}
+.sz b{display:block;font-size:16px}
+.sz span{font-size:13px;color:var(--mute)}
+.sz .row{margin:0}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+.note{font-size:14px;color:var(--mute);margin-top:12px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 16px 28px}
+</style></head><body><main>
+<h1>YouTube Thumbnail Downloader 🖼️</h1>
+<p class="lead">Paste a YouTube link. Get the thumbnail in every size, then open it and save.</p>
+
+<div class="card">
+ <input id="u" type="url" inputmode="url" placeholder="Paste a YouTube link, e.g. https://youtu.be/dQw4w9WgXcQ" aria-label="YouTube link">
+ <div class="row"><button class="p" id="go">Find thumbnails</button><button id="cl">Clear</button></div>
+ <div class="err" id="err" aria-live="polite"></div>
+</div>
+
+<div class="card" id="out" style="display:none">
+ <div id="vid" style="font-size:14px;color:var(--mute);margin-bottom:6px"></div>
+ <div id="list"></div>
+ <p class="note">Tap <b>Open</b> to view the image full size, then long-press it (on phone) or right-click it (on computer) and choose Save. Some videos do not have the largest size. If so, use a smaller one.</p>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px">Copy a link from YouTube, including normal videos, Shorts and youtu.be links, and paste it into the box. Tap Find thumbnails. Choose a size and tap Open. Then save the image from the new tab.</p>
+ <details><summary>Which size should I pick?</summary><p>Maximum size (1280 × 720) is best for quality. If it is missing for that video, pick Large (640 × 480) or High (480 × 360).</p></details>
+ <details><summary>Why does it say the link is not valid?</summary><p>Check that the link is from YouTube and includes the video. You can also paste just the 11-character video code.</p></details>
+ <details><summary>Can I use these images anywhere?</summary><p>The thumbnails belong to the video's creator. Use them for personal reference, or ask the creator's permission before publishing them.</p></details>
+ <details><summary>Does it save my links?</summary><p>No. Nothing is stored after you close the page.</p></details>
+</section>
+</main>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const SIZES=[['Maximum (1280 × 720)','maxresdefault'],['Large (640 × 480)','sddefault'],['High (480 × 360)','hqdefault'],['Medium (320 × 180)','mqdefault'],['Small (120 × 90)','default']];
+function vid(s){
+ s=(s||'').trim();
+ if(/^[A-Za-z0-9_-]{11}$/.test(s))return s;
+ const m=s.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/|m\.youtube\.com\/watch\?v=)([A-Za-z0-9_-]{11})/);
+ return m?m[1]:null;
+}
+function esc(t){return t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function go(){
+ const err=$('err'),out=$('out');err.textContent='';
+ const id=vid($('u').value);
+ if(!$('u').value.trim()){err.textContent='Paste a YouTube link first.';out.style.display='none';return}
+ if(!id){err.textContent='That does not look like a YouTube link. Check it and try again.';out.style.display='none';return}
+ $('vid').textContent='Video code: '+id;
+ $('list').innerHTML=SIZES.map(([label,file])=>{const url='https://img.youtube.com/vi/'+id+'/'+file+'.jpg';
+  return '<div class="sz"><div><b>'+esc(label)+'</b><span>'+esc(file)+'.jpg</span></div><div class="row"><a class="btn p" href="'+url+'" target="_blank" rel="noopener">Open</a><button data-u="'+url+'" class="cp">Copy link</button></div></div>'}).join('');
+ out.style.display='block';
+ document.querySelectorAll('.cp').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.u);b.textContent='Copied';setTimeout(()=>b.textContent='Copy link',1200)}catch(e){err.textContent='Copy is not available here. Tap Open instead.'}});
+}
+$('go').onclick=go;
+$('u').onkeydown=e=>{if(e.key==='Enter')go()};
+$('cl').onclick=()=>{$('u').value='';$('out').style.display='none';$('err').textContent='';$('u').focus()};
+</script></main></body></html>

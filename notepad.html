@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Notepad</title>
+<style>
+:root{--bg:#fbfaf6;--ink:#262626;--card:#fff;--line:#e4e0d6;--acc:#ca8a04;--accI:#fff;--mute:#7a7467;--bad:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1915;--ink:#ecebe4;--card:#24231e;--line:#3d3a31;--acc:#facc15;--accI:#1f1a05;--mute:#a8a293;--bad:#f87171}}
+:root[data-theme="dark"]{--bg:#1a1915;--ink:#ecebe4;--card:#24231e;--line:#3d3a31;--acc:#facc15;--accI:#1f1a05;--mute:#a8a293;--bad:#f87171}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.5}
+main{max-width:860px;margin:0 auto;padding:12px}
+header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-size:24px;margin:4px 8px 4px 0;flex:1 1 auto}
+button,select,input{font:inherit}
+button{padding:9px 13px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .12s,filter .2s}
+button:hover{filter:brightness(1.05)}
+button:active{transform:scale(.97)}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:700}
+button.x{color:var(--bad)}
+.layout{display:grid;grid-template-columns:240px 1fr;gap:12px}
+@media (max-width:640px){.layout{grid-template-columns:1fr}}
+.side{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px;max-height:70vh;overflow:auto}
+.side input{width:100%;padding:9px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:8px}
+.note{padding:10px;border-radius:12px;cursor:pointer;border:2px solid transparent;margin-bottom:6px}
+.note:hover{background:var(--bg)}
+.note.on{border-color:var(--acc);background:var(--bg)}
+.note b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note span{font-size:13px;color:var(--mute)}
+.empty{font-size:14px;color:var(--mute);padding:8px}
+.pad{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 14px 34px -18px rgba(60,50,20,.3)}
+#title{width:100%;font-size:22px;font-weight:700;border:0;border-bottom:2px solid var(--line);padding:6px 2px;background:transparent;color:var(--ink);outline:none}
+#title:focus{border-color:var(--acc)}
+#body{width:100%;min-height:360px;margin-top:10px;border:0;outline:none;resize:vertical;background:transparent;color:var(--ink);font:inherit;line-height:1.7;font-size:var(--fs,17px)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:14px;color:var(--mute)}
+.bar .sp{flex:1}
+select{padding:7px 9px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+#saved{font-size:13px;color:var(--mute)}
+.help{margin-top:20px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 4px 28px}
+</style></head><body><main>
+<header>
+ <h1>Notepad 📝</h1>
+ <button class="p" id="new">＋ New note</button>
+ <button id="dl">💾 Download .txt</button>
+ <button id="cp">📋 Copy</button>
+ <button class="x" id="del">🗑️ Delete</button>
+</header>
+
+<div class="layout">
+ <aside class="side">
+  <input id="q" type="search" placeholder="Search notes…" aria-label="Search notes">
+  <div id="list"></div>
+ </aside>
+
+ <section class="pad">
+  <input id="title" placeholder="Note title" aria-label="Note title">
+  <textarea id="body" placeholder="Start writing…" aria-label="Note text"></textarea>
+  <div class="bar">
+   <span id="count"></span>
+   <span class="sp"></span>
+   <label>Text size <select id="fs"><option value="15">Small</option><option value="17" selected>Medium</option><option value="20">Large</option><option value="24">Extra large</option></select></label>
+   <span id="saved"></span>
+  </div>
+ </section>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px">Tap <b>New note</b> to start a page, then type a title and your text. Notes save automatically in this browser as you type. Pick any note on the left to open it, use the search box to find one, and use Download or Copy to take the text out.</p>
+ <details><summary>Are my notes saved?</summary><p>Yes, they are kept in this browser on this device, so they will still be there when you come back. Clearing your browser data or using a different device will not show them.</p></details>
+ <details><summary>How do I delete a note?</summary><p>Open the note and tap Delete. It asks you to confirm first, and it cannot be undone.</p></details>
+ <details><summary>Can I use it on my phone?</summary><p>Yes. The list moves above the note on small screens. Download saves a plain text file you can open in any app.</p></details>
+</section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const KEY='notepad.notes.v1';
+let notes=[],cur=null,saveT=null;
+function load(){try{notes=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){notes=[]}if(!Array.isArray(notes))notes=[]}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(notes));$('saved').textContent='Saved'}catch(e){$('saved').textContent='Could not save here'}}
+function newNote(){const n={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),title:'',body:'',t:Date.now()};notes.unshift(n);cur=n.id;persist();render();$('title').focus()}
+function current(){return notes.find(n=>n.id===cur)}
+function preview(n){return (n.body||'').replace(/\s+/g,' ').slice(0,60)||'Empty note'}
+function render(){
+ const q=$('q').value.trim().toLowerCase(),box=$('list');box.innerHTML='';
+ const shown=notes.filter(n=>!q||(n.title+' '+n.body).toLowerCase().includes(q));
+ if(!shown.length){box.innerHTML='<div class="empty">'+(notes.length?'No notes match your search.':'No notes yet. Tap New note.')+'</div>'}
+ shown.forEach(n=>{const d=document.createElement('div');d.className='note'+(n.id===cur?' on':'');
+  d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=n.title||'Untitled';d.querySelector('span').textContent=preview(n);
+  d.onclick=()=>{cur=n.id;render()};box.appendChild(d)});
+ const n=current(),has=!!n;
+ $('title').disabled=!has;$('body').disabled=!has;$('dl').disabled=!has;$('cp').disabled=!has;$('del').disabled=!has;
+ $('title').value=has?n.title:'';$('body').value=has?n.body:'';
+ if(!has){$('title').placeholder='Tap New note to begin';}
+ updateCount();
+}
+function updateCount(){const t=$('body').value;const w=t.trim()?t.trim().split(/\s+/).length:0;$('count').textContent=w+' words · '+[...t].length+' characters'}
+function scheduleSave(){$('saved').textContent='Saving…';clearTimeout(saveT);saveT=setTimeout(()=>{const n=current();if(!n)return;n.title=$('title').value;n.body=$('body').value;n.t=Date.now();persist();render()},300)}
+$('title').oninput=scheduleSave;
+$('body').oninput=()=>{updateCount();scheduleSave()};
+$('q').oninput=render;
+$('new').onclick=newNote;
+$('fs').onchange=e=>{document.getElementById('body').style.setProperty('--fs',e.target.value+'px')};
+$('del').onclick=()=>{const n=current();if(!n)return;if(!confirm('Delete this note? This cannot be undone.'))return;notes=notes.filter(x=>x.id!==n.id);cur=notes[0]?notes[0].id:null;persist();render()};
+$('dl').onclick=()=>{const n=current();if(!n)return;const name=(n.title||'note').replace(/[^\w\- ]+/g,'').trim()||'note';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([(n.title?n.title+'\n\n':'')+n.body],{type:'text/plain'}));a.download=name+'.txt';document.body.appendChild(a);a.click();a.remove()};
+$('cp').onclick=async()=>{const t=$('body').value;try{await navigator.clipboard.writeText(t);$('saved').textContent='Copied'}catch(e){$('body').select();$('saved').textContent='Select and copy the text'}};
+load();cur=notes[0]?notes[0].id:null;$('fs').value='17';$('body').style.setProperty('--fs','17px');render();
+</script></main></body></html>

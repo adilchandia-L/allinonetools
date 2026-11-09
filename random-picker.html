@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Random Picker</title>
+<style>
+:root{--bg:#fff8f1;--ink:#2b1d12;--card:#fff;--line:#f0dcc8;--acc:#ea580c;--accI:#fff;--mute:#7d6251;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#160f0a;--ink:#f9ebdc;--card:#22180f;--line:#4a3320;--acc:#fb923c;--accI:#2a1305;--mute:#c4a68c;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#160f0a;--ink:#f9ebdc;--card:#22180f;--line:#4a3320;--acc:#fb923c;--accI:#2a1305;--mute:#c4a68c;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:600px;margin:0 auto;padding:16px}
+h1{font-size:25px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 10px;font-size:15px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-top:12px;box-shadow:0 14px 34px -18px rgba(60,30,10,.35)}
+textarea,input,select{font:inherit;width:100%;padding:11px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+textarea{min-height:140px;resize:vertical}
+button{font:inherit;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .12s,filter .2s}
+button:hover:not(:disabled){filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tabs button.on{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.row>*{flex:1 1 auto}
+.stage{min-height:160px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(28px,8vw,44px);font-weight:800;padding:16px;margin-top:14px;border-radius:16px;background:var(--bg);border:2px dashed var(--line);word-break:break-word}
+.stage.win{color:var(--acc);border-color:var(--acc);animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.9);opacity:.4}100%{transform:scale(1);opacity:1}}
+.coin{font-size:70px;text-align:center;margin:8px 0;transition:transform .6s}
+.dice{font-size:70px;text-align:center;margin:8px 0}
+.hist{margin-top:10px;font-size:15px;color:var(--mute);max-height:180px;overflow:auto}
+.hist div{padding:6px 2px;border-bottom:1px solid var(--line)}
+.lbl{font-size:14px;color:var(--mute);margin:10px 0 4px}
+.msg{font-size:14px;color:#dc2626;min-height:20px;margin-top:6px}
+.ok{font-size:14px;color:var(--good);min-height:20px;margin-top:6px}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 16px 28px}
+</style></head><body><main>
+<h1>Random Picker 🎲</h1>
+<p class="lead">Pick a winner from a list, flip a coin, or roll dice.</p>
+
+<div class="tabs">
+ <button class="on" id="tPick">Pick from list</button>
+ <button id="tCoin">Flip coin</button>
+ <button id="tDice">Roll dice</button>
+</div>
+
+<!-- LIST -->
+<div class="card" id="cPick">
+ <div class="lbl">One name or option per line</div>
+ <textarea id="list" placeholder="Anna&#10;Ben&#10;Chris&#10;Dina">Anna
+Ben
+Chris
+Dina</textarea>
+ <div class="row">
+  <label class="lbl" style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="rm" style="width:auto"> Remove winner after each pick</label>
+ </div>
+ <div class="row">
+  <button class="p" id="pick">🎯 Pick one</button>
+  <button id="shuf">🔀 Shuffle list</button>
+  <button id="clr">Clear list</button>
+ </div>
+ <div class="msg" id="lmsg"></div>
+ <div class="stage" id="stage">Your winner appears here</div>
+ <div class="lbl">Recent picks</div>
+ <div class="hist" id="hist"></div>
+</div>
+
+<!-- COIN -->
+<div class="card" id="cCoin" style="display:none">
+ <div class="coin" id="coin">🪙</div>
+ <div class="stage" id="cres">Heads or tails?</div>
+ <div class="row"><button class="p" id="flip">🪙 Flip</button></div>
+</div>
+
+<!-- DICE -->
+<div class="card" id="cDice" style="display:none">
+ <div class="lbl">How many dice</div>
+ <select id="nd"><option value="1">1 die</option><option value="2" selected>2 dice</option><option value="3">3 dice</option></select>
+ <div class="dice" id="dice">🎲</div>
+ <div class="stage" id="dres">Roll to see your total</div>
+ <div class="row"><button class="p" id="roll">🎲 Roll</button></div>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px"><b>Pick from list:</b> type one name or option on each line, then tap Pick one. Tick "Remove winner" to take each winner out, so you can pick several different people. <b>Flip coin</b> and <b>Roll dice</b> work with a tap.</p>
+ <details><summary>Is the choice fair?</summary><p>It uses your device's random number generator, so every name has the same chance each time.</p></details>
+ <details><summary>Can I pick more than one winner?</summary><p>Yes. Tick Remove winner after each pick, then pick again. The list gets shorter each time.</p></details>
+ <details><summary>Does it save my list?</summary><p>No. The list and picks are kept only while the page is open.</p></details>
+</section>
+</main>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const rnd=n=>{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n};
+let hist=[];
+function items(){return $('list').value.split('\n').map(s=>s.trim()).filter(Boolean)}
+function tab(t){['Pick','Coin','Dice'].forEach(n=>{const on=n===t;$('c'+n).style.display=on?'block':'none';$('t'+n).classList.toggle('on',on)})}
+$('tPick').onclick=()=>tab('Pick');$('tCoin').onclick=()=>tab('Coin');$('tDice').onclick=()=>tab('Dice');
+$('pick').onclick=()=>{
+ const l=items(),m=$('lmsg');m.textContent='';
+ if(!l.length){m.textContent='Add at least one name or option first.';return}
+ const w=l[rnd(l.length)];
+ const st=$('stage');st.textContent=w;st.classList.remove('win');void st.offsetWidth;st.classList.add('win');
+ hist.unshift(w);$('hist').innerHTML=hist.slice(0,20).map((h,i)=>'<div>'+(hist.length-i>0?'#'+(hist.length-i)+' · ':'')+h.replace(/</g,'&lt;')+'</div>').join('');
+ if($('rm').checked){const rest=l.filter((_,i)=>i!==l.indexOf(w));$('list').value=rest.join('\n');if(!rest.length)m.textContent='That was the last one. Add more names to pick again.'}
+};
+$('shuf').onclick=()=>{const l=items();for(let i=l.length-1;i>0;i--){const j=rnd(i+1);[l[i],l[j]]=[l[j],l[i]]}$('list').value=l.join('\n')};
+$('clr').onclick=()=>{$('list').value='';$('stage').textContent='Your winner appears here';$('lmsg').textContent=''};
+$('flip').onclick=()=>{const r=rnd(2),c=$('coin');c.style.transform='rotateY('+(1800+(r?180:0))+'deg)';setTimeout(()=>{c.textContent=r?'🪙':'🪙';$('cres').textContent=r?'Tails':'Heads'},600)};
+$('roll').onclick=()=>{const n=+$('nd').value;const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];let t=0,s=[];for(let i=0;i<n;i++){const v=rnd(6)+1;t+=v;s.push(faces[v-1])}$('dice').textContent=s.join(' ');$('dres').textContent='Total: '+t+(n>1?' ('+s.map((_,i)=>'').join('')+')':'')}
+</script></main></body></html>

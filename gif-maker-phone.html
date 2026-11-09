@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>GIF Maker (Phone)</title>
+<style>
+:root{--bg:#f5f3ff;--ink:#1f1b3a;--card:#fff;--line:#ddd6f5;--acc:#6d28d9;--accI:#fff;--mute:#6b6590;--bad:#dc2626;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#110e22;--ink:#ece9ff;--card:#1b1732;--line:#342d5c;--acc:#a78bfa;--accI:#1a0f3b;--mute:#a7a1cc;--bad:#f87171;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#110e22;--ink:#ece9ff;--card:#1b1732;--line:#342d5c;--acc:#a78bfa;--accI:#1a0f3b;--mute:#a7a1cc;--bad:#f87171;--good:#4ade80}
+html{color-scheme:light dark;-webkit-text-size-adjust:100%}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;font-size:18px;line-height:1.45}
+main{max-width:520px;margin:0 auto;padding:14px 14px 30px}
+h1{font-size:26px;margin:6px 0 4px}
+h2{font-size:19px;margin:0 0 10px}
+.lead{color:var(--mute);margin:0 0 14px;font-size:16px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-top:14px}
+button,select,input{font:inherit}
+.big{display:block;width:100%;padding:16px;border-radius:16px;border:0;background:var(--acc);color:var(--accI);font-size:19px;font-weight:700;cursor:pointer;margin-top:10px;text-align:center}
+.big.sec{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.big:disabled{opacity:.45}
+.pick{display:block;text-align:center;padding:16px;border-radius:16px;border:2px dashed var(--acc);color:var(--acc);font-weight:700;font-size:18px;cursor:pointer}
+.pick input{display:none}
+video{width:100%;border-radius:14px;background:#000;margin-top:12px;display:none;max-height:340px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+label{font-size:15px;font-weight:600;display:block;margin-bottom:4px}
+select,input[type=number]{width:100%;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font-size:18px}
+input[type=range]{width:100%;accent-color:var(--acc);margin:6px 0}
+.tm{font-size:15px;color:var(--mute);margin-top:6px}
+.msg{font-size:15px;color:var(--mute);margin-top:10px;min-height:22px}
+.err{color:var(--bad);font-size:16px;margin-top:10px;min-height:22px}
+.ok{color:var(--good);font-size:15px;margin-top:8px;min-height:20px}
+.bar{height:12px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:12px;display:none}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .15s}
+img#gifout{display:none;width:100%;border-radius:14px;border:1px solid var(--line);margin-top:12px}
+.steps{margin:0;padding-left:20px;font-size:16px}
+.steps li{margin:6px 0}
+.help{margin-top:20px;font-size:16px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:center;font-size:14px;opacity:.7;padding:18px 12px 24px}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>GIF Maker 📱</h1>
+<p class="lead">Turn a short video from your phone into an animated GIF in a few taps.</p>
+
+<div class="card">
+ <h2>1. Get a video</h2>
+ <ol class="steps">
+  <li>Use your phone's own screen recorder, or record a clip with the camera below.</li>
+  <li>Tap <b>Choose video</b> and pick it from your gallery.</li>
+ </ol>
+ <label class="pick" style="margin-top:12px">🎬 Choose video from gallery<input id="vf" type="file" accept="video/*"></label>
+ <label class="pick" style="margin-top:10px">📷 Record a new clip<input id="cam" type="file" accept="video/*" capture="environment"></label>
+ <video id="pv" controls playsinline></video>
+ <div class="msg" id="vmsg"></div>
+ <div class="err" id="verr" aria-live="polite"></div>
+</div>
+
+<div class="card">
+ <h2>2. Choose the part you want</h2>
+ <label for="st">Start: <span id="stv">0.0</span> seconds</label>
+ <input id="st" type="range" min="0" max="0" step="0.1" value="0" disabled>
+ <label for="ln" style="margin-top:10px">Length: <span id="lnv">3.0</span> seconds (up to 10)</label>
+ <input id="ln" type="range" min="0.5" max="10" step="0.5" value="3" disabled>
+ <div class="grid">
+  <div><label for="fps">Speed</label><select id="fps"><option value="5">Small file</option><option value="8" selected>Good</option><option value="12">Smooth</option></select></div>
+  <div><label for="wd">Size</label><select id="wd"><option value="240">Small</option><option value="320" selected>Medium</option><option value="400">Large</option></select></div>
+ </div>
+ <button class="big" id="mk" disabled>🎞️ Make GIF</button>
+ <div class="bar" id="bar"><i id="fill"></i></div>
+ <div class="msg" id="gmsg"></div>
+ <div class="err" id="gerr" aria-live="polite"></div>
+</div>
+
+<div class="card" id="outc" style="display:none">
+ <h2>3. Your GIF</h2>
+ <img id="gifout" alt="Your GIF">
+ <button class="big" id="share">📤 Share or save</button>
+ <button class="big sec" id="dl">💾 Download GIF</button>
+ <div class="ok" id="gok"></div>
+</div>
+
+<section class="help">
+ <h2>How to use</h2>
+ <p style="margin:0 0 6px">Pick a video from your gallery, or record one. Move the Start and Length sliders to choose the part you want, pick a speed and size, then tap Make GIF. When it's ready, tap Share or save to send it to a chat, or Download to keep it.</p>
+ <details><summary>How do I record my phone screen?</summary><p>On most phones, swipe down to open quick settings and tap Screen record. On Samsung, use the Screen recorder in quick settings. Record your steps, stop, then choose the video here.</p></details>
+ <details><summary>The GIF is too big to send. What do I do?</summary><p>Choose Small size, Small file speed, and a shorter length. Smaller files send more easily.</p></details>
+ <details><summary>Why is making the GIF slow?</summary><p>It takes longer on older phones and for longer clips. Keep clips short, around 3 to 5 seconds, for the quickest result.</p></details>
+ <details><summary>Does it upload my video anywhere?</summary><p>No. The work happens on your phone, and nothing is saved after you close the page.</p></details>
+</section>
+</main>
+
+<script>
+// Minimal GIF89a encoder with a fixed 6x6x6 web-safe palette and LZW compression.
+function lzw(idx){
+  const out=[];let buf=0,bits=0,size=9,next=258;const dict=new Map();
+  const emit=c=>{buf|=c<<bits;bits+=size;while(bits>=8){out.push(buf&255);buf>>>=8;bits-=8}};
+  emit(256);
+  let pre=idx[0];
+  for(let i=1;i<idx.length;i++){
+    const k=idx[i],key=pre*256+k,f=dict.get(key);
+    if(f!==undefined){pre=f;continue}
+    emit(pre);
+    if(next<4096){dict.set(key,next);next++;if(next>(1<<size)&&size<12)size++}
+    else{emit(256);dict.clear();next=258;size=9}
+    pre=k;
+  }
+  emit(pre);emit(257);
+  if(bits>0)out.push(buf&255);
+  return out;
+}
+function palette(){const p=[];for(let r=0;r<6;r++)for(let g=0;g<6;g++)for(let b=0;b<6;b++)p.push([r*51,g*51,b*51]);return p}
+function quantize(rgba,n){ // returns Uint8Array of palette indices
+  const o=new Uint8Array(n);
+  for(let i=0;i<n;i++){
+    const r=Math.round(rgba[i*4]/51),g=Math.round(rgba[i*4+1]/51),b=Math.round(rgba[i*4+2]/51);
+    o[i]=r*36+g*6+b;
+  }
+  return o;
+}
+function encodeGIF(frames,w,h,delayCs){ // frames: array of Uint8ClampedArray RGBA of size w*h*4
+  const bytes=[];const u16=v=>{bytes.push(v&255,(v>>8)&255)};
+  const str=s=>{for(const c of s)bytes.push(c.charCodeAt(0))};
+  str('GIF89a');u16(w);u16(h);bytes.push(0xF7,0,0);
+  const pal=palette();for(let i=0;i<256;i++){const c=pal[i]||[0,0,0];bytes.push(c[0],c[1],c[2])}
+  bytes.push(0x21,0xFF,0x0B);str('NETSCAPE2.0');bytes.push(0x03,0x01,0,0,0);
+  for(const f of frames){
+    bytes.push(0x21,0xF9,0x04,0x08);u16(delayCs);bytes.push(0,0);
+    bytes.push(0x2C);u16(0);u16(0);u16(w);u16(h);bytes.push(0);
+    bytes.push(8);
+    const data=lzw(quantize(f,w*h));
+    for(let i=0;i<data.length;i+=255){const chunk=data.slice(i,i+255);bytes.push(chunk.length,...chunk)}
+    bytes.push(0);
+  }
+  bytes.push(0x3B);
+  return new Uint8Array(bytes);
+}
+
+
+const $=id=>document.getElementById(id);
+let vURL=null,gifBlob=null,busy=false,dur=0;
+function fmt(x){return (Math.round(x*10)/10).toFixed(1)}
+function ready(){const max=Math.max(0,dur-0.1);const st=$('st'),ln=$('ln');st.max=max.toFixed(1);st.disabled=false;ln.disabled=false;ln.max=Math.min(10,dur).toFixed(1);
+ if(+ln.value>Math.min(10,dur))ln.value=Math.min(10,dur);
+ sync();$('mk').disabled=false}
+function sync(){const d=dur;let st=+$('st').value,ln=+$('ln').value;if(st+ln>d)st=Math.max(0,d-ln);$('stv').textContent=fmt(st);$('lnv').textContent=fmt(ln);
+ const pv=$('pv');if(pv.dataset.ok){pv.currentTime=st}}
+$('st').oninput=sync;$('ln').oninput=sync;
+function load(f,errEl){
+ errEl.textContent='';if(!f)return;
+ if(!f.type.startsWith('video/')){errEl.textContent='Please choose a video file.';return}
+ if(vURL)URL.revokeObjectURL(vURL);
+ vURL=URL.createObjectURL(f);
+ const pv=$('pv');pv.src=vURL;pv.style.display='block';pv.dataset.ok='';
+ pv.onloadedmetadata=()=>{dur=pv.duration||0;if(!isFinite(dur)||dur<=0){errEl.textContent='Could not read this video. Try another file.';return}pv.dataset.ok='1';$('vmsg').textContent='Video loaded: '+fmt(dur)+' seconds long.';ready()};
+ pv.onerror=()=>{errEl.textContent='Could not open this video. Try another file.'};
+ $('outc').style.display='none';gifBlob=null;
+}
+$('vf').onchange=e=>load(e.target.files[0],$('verr'));
+$('cam').onchange=e=>load(e.target.files[0],$('verr'));
+function seek(v,t){return new Promise((res,rej)=>{const to=setTimeout(()=>rej(new Error('timeout')),8000);const h=()=>{v.removeEventListener('seeked',h);clearTimeout(to);res()};v.addEventListener('seeked',h);v.currentTime=t})}
+$('mk').onclick=async()=>{
+ if(busy||!vURL)return;
+ if(typeof encodeGIF!=='function'){$('gerr').textContent='The GIF tool could not start. Try reloading the page.';return}
+ $('gerr').textContent='';$('gok').textContent='';$('outc').style.display='none';
+ busy=true;$('mk').disabled=true;
+ const fps=+$('fps').value,W=+$('wd').value;
+ const st=+$('st').value,ln=Math.min(+$('ln').value,dur-st);
+ const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=vURL;
+ try{
+  await new Promise((res,rej)=>{v.onloadedmetadata=res;v.onerror=()=>rej(new Error('load'))});
+  const H=Math.round(W*((v.videoHeight||9)/(v.videoWidth||16)));
+  const n=Math.max(1,Math.round(ln*fps));
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d',{willReadFrequently:true});
+  const frames=[];$('bar').style.display='block';
+  for(let i=0;i<n;i++){
+   const t=Math.min(st+i/fps,dur-0.05);
+   await seek(v,Math.max(0,t));
+   cx.drawImage(v,0,0,W,H);
+   frames.push(cx.getImageData(0,0,W,H).data.slice());
+   $('fill').style.width=Math.round((i+1)/n*75)+'%';
+   $('gmsg').textContent='Capturing frames… '+(i+1)+' of '+n;
+   await new Promise(r=>setTimeout(r,0));
+  }
+  $('gmsg').textContent='Building GIF…';await new Promise(r=>setTimeout(r,30));
+  const bytes=encodeGIF(frames,W,H,Math.round(100/fps));
+  $('fill').style.width='100%';
+  gifBlob=new Blob([bytes],{type:'image/gif'});
+  const img=$('gifout');img.src=URL.createObjectURL(gifBlob);img.style.display='block';
+  $('outc').style.display='block';$('gmsg').textContent='GIF ready: '+n+' frames, '+(bytes.length/1024).toFixed(0)+' KB.';
+  $('outc').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(e){$('gerr').textContent='Could not make the GIF. Try a shorter length or a smaller size.'}
+ finally{$('bar').style.display='none';$('fill').style.width='0';busy=false;$('mk').disabled=!vURL}
+};
+$('share').onclick=async()=>{
+ if(!gifBlob)return;
+ const file=new File([gifBlob],'animation.gif',{type:'image/gif'});
+ try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'GIF'});$('gok').textContent='Shared.';return}}catch(e){if(e&&e.name==='AbortError')return}
+ download();
+};
+function download(){if(!gifBlob)return;const a=document.createElement('a');a.href=URL.createObjectURL(gifBlob);a.download='animation.gif';document.body.appendChild(a);a.click();a.remove();$('gok').textContent='Downloaded animation.gif. Check your Downloads folder.'}
+$('dl').onclick=download;
+</script>
+</main><footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

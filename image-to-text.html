@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Image to Text (OCR)</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2333;--card:#fff;--line:#d6dce8;--acc:#0e7490;--accI:#fff;--mute:#5f6b7e;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e141d;--ink:#e6ebf3;--card:#16202e;--line:#2a364b;--acc:#38bdf8;--accI:#04202c;--mute:#9aa7bb;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#0e141d;--ink:#e6ebf3;--card:#16202e;--line:#2a364b;--acc:#38bdf8;--accI:#04202c;--mute:#9aa7bb;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:720px;margin:0 auto;padding:14px}
+h1{font-size:25px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 14px;font-size:15px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:var(--bg)}
+.drop:hover,.drop:focus-within{border-color:var(--acc)}
+.drop input{display:none}
+.drop b{font-size:18px}
+.drop span{display:block;color:var(--mute);font-size:14px;margin-top:4px}
+#pv{display:none;max-width:100%;max-height:260px;margin:12px auto 0;border-radius:10px;border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+select,button{font:inherit;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:12px;display:none}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+#st{font-size:14px;color:var(--mute);margin-top:6px;min-height:20px}
+textarea{width:100%;min-height:200px;font:inherit;font-size:16px;line-height:1.55;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);margin-top:10px;resize:vertical}
+.err{color:#dc2626;font-size:15px;margin-top:8px;min-height:20px}
+.ok{color:var(--good);font-size:14px;margin-top:6px;min-height:18px}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:center;font-size:13px;opacity:.7;padding:18px 12px 24px}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Image to Text (OCR) 🖼️➜📝</h1>
+<p class="lead">Upload a photo or scan of text, and get the words back as editable text.</p>
+
+<div class="card">
+ <label class="drop" id="drop"><input type="file" id="file" accept="image/*">
+  <b>📁 Tap to choose an image</b>
+  <span>PNG, JPG or WebP. Clear, well-lit photos work best.</span>
+ </label>
+ <img id="pv" alt="Your image preview">
+ <div class="row">
+  <label for="lang">Language</label>
+  <select id="lang">
+   <option value="eng">English</option>
+   <option value="hin">Hindi</option>
+   <option value="ara">Arabic</option>
+   <option value="fra">French</option>
+   <option value="deu">German</option>
+   <option value="spa">Spanish</option>
+   <option value="por">Portuguese</option>
+   <option value="rus">Russian</option>
+   <option value="chi_sim">Chinese (Simplified)</option>
+   <option value="jpn">Japanese</option>
+  </select>
+  <button class="p" id="go" disabled>🔍 Read text</button>
+ </div>
+ <div class="bar" id="bar"><i id="fill"></i></div>
+ <div id="st"></div>
+ <div class="err" id="err" aria-live="polite"></div>
+</div>
+
+<div class="card" id="outbox" style="display:none">
+ <label for="out" style="font-weight:600">Your text (you can edit it)</label>
+ <textarea id="out" aria-label="Recognised text"></textarea>
+ <div class="row">
+  <button id="cp">📋 Copy</button>
+  <button id="sv">💾 Save as text</button>
+  <button id="clr">🗑️ Clear</button>
+ </div>
+ <div class="ok" id="ok"></div>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px">Tap the box and choose a picture of your text. Pick the language the text is written in, then tap Read text. Wait for the progress bar to finish, then copy or save the words. Check the result, because very blurry or handwritten text may come out wrong.</p>
+ <details><summary>Why is the first reading slow?</summary><p>The first time you use a language, the page downloads its reading data, which needs an internet connection. After that, it runs faster.</p></details>
+ <details><summary>Which photos work best?</summary><p>Flat, sharp, evenly lit pictures with dark text on a light background. Avoid shadows, tilted angles and very small writing.</p></details>
+ <details><summary>Is my image uploaded anywhere?</summary><p>The text is read inside your browser, and the image is not stored by this page after you close it.</p></details>
+ <details><summary>Can it read handwriting?</summary><p>It works best with printed text. Neat handwriting may work, but messy handwriting often gives errors.</p></details>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let imgURL=null,busy=false;
+$('file').onchange=e=>{
+ const f=e.target.files[0];$('err').textContent='';$('ok').textContent='';
+ if(!f)return;
+ if(!f.type.startsWith('image/')){$('err').textContent='Please choose an image file.';return}
+ if(f.size>15*1024*1024){$('err').textContent='That image is over 15 MB. Try a smaller one.';return}
+ if(imgURL)URL.revokeObjectURL(imgURL);
+ imgURL=URL.createObjectURL(f);
+ $('pv').src=imgURL;$('pv').style.display='block';
+ $('go').disabled=false;$('st').textContent='Image ready. Tap Read text.';
+};
+function setProg(p,msg){$('bar').style.display='block';$('fill').style.width=Math.round(p*100)+'%';$('st').textContent=msg}
+$('go').onclick=async()=>{
+ if(busy||!imgURL)return;
+ if(typeof Tesseract==='undefined'){$('err').textContent='The reading tool could not load. Check your internet connection and try again.';return}
+ busy=true;$('go').disabled=true;$('err').textContent='';
+ try{
+  const lang=$('lang').value;
+  const w=await Tesseract.createWorker(lang,1,{logger:m=>{
+   if(m.status==='recognizing text')setProg(m.progress,'Reading text… '+Math.round(m.progress*100)+'%');
+   else if(m.status)setProg(0.05,m.status.replace(/_/g,' ')+'…')
+  }});
+  const r=await w.recognize(imgURL);
+  await w.terminate();
+  const text=(r.data.text||'').trim();
+  $('bar').style.display='none';
+  if(!text){$('err').textContent='No text was found. Try a clearer photo or choose the right language.';$('st').textContent='';}
+  else{$('out').value=text;$('outbox').style.display='block';$('st').textContent='Done. Confidence about '+Math.round(r.data.confidence)+'%.';$('out').scrollIntoView({behavior:'smooth',block:'nearest'})}
+ }catch(e){$('bar').style.display='none';$('err').textContent='Reading failed. Check your internet connection and try a clearer image.';$('st').textContent=''}
+ busy=false;$('go').disabled=false;
+};
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText($('out').value);$('ok').textContent='Copied.'}catch(e){$('out').select();$('ok').textContent='Select the text and copy it.'}};
+$('sv').onclick=async()=>{const t=$('out').value;try{const d=await claude.use('downloads');if(!d)throw 0;await d.save({filename:'text.txt',data:t});$('ok').textContent='Saved.'}catch(e){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='text.txt';document.body.appendChild(a);a.click();a.remove();$('ok').textContent='Downloaded.'}};
+$('clr').onclick=()=>{$('out').value='';$('outbox').style.display='none';$('ok').textContent=''};
+</script>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Media Finder</title>
+<style>
+  :root { --bg:#f5f7fb; --ink:#1d2433; --card:#fff; --line:#d9e0ec; --acc:#4f46e5; --mute:#66708a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1420; --ink:#e7ecf4; --card:#171f2e; --line:#2b3649; --acc:#8b87ff; --mute:#97a3b6; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,sans-serif; line-height:1.45; }
+  main { max-width:720px; margin:0 auto; padding:16px; }
+  h1 { font-size:26px; margin:8px 0 4px; }
+  .lead { color:var(--mute); margin:0 0 14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; }
+  button { font:inherit; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  button.on, button.p { background:var(--acc); border-color:var(--acc); color:#fff; }
+  input, textarea { font:inherit; width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); }
+  .src { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--line); }
+  .src:last-child { border-bottom:0; }
+  .src b { display:block; font-size:16px; }
+  .src span { color:var(--mute); font-size:14px; }
+  a { color:var(--acc); }
+  .tag { font-size:12px; color:var(--mute); border:1px solid var(--line); border-radius:999px; padding:2px 8px; margin-left:4px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .ok { color:#15803d; font-size:14px; min-height:20px; margin-top:6px; }
+  .note { color:var(--mute); font-size:14px; }
+  footer { font-size:14px; opacity:.75; padding:20px 0 24px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Free Media Finder</h1>
+  <p class="lead">Places to find free music, video and images you can legally use. Always check the license on each file before you use it.</p>
+
+  <div class="card">
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="card" id="list"></div>
+
+  <div class="card">
+    <h2 style="font-size:18px;margin:0 0 8px;">Credit line maker</h2>
+    <p class="note" style="margin:0 0 8px;">Fill in what you used. The credit line is built for you to copy.</p>
+    <input id="title" placeholder="Title of the work">
+    <input id="creator" placeholder="Creator's name" style="margin-top:8px;">
+    <input id="source" placeholder="Where you found it (website)" style="margin-top:8px;">
+    <input id="license" placeholder="License, e.g. CC BY 4.0" style="margin-top:8px;">
+    <div class="row"><button class="p" id="make">Make credit line</button></div>
+    <textarea id="credit" rows="3" readonly style="margin-top:10px;" placeholder="Your credit line appears here"></textarea>
+    <div class="row"><button id="copy">Copy</button></div>
+    <div class="ok" id="ok"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:18px;margin:0 0 8px;">Before you use anything</h2>
+    <p class="note">1. Check the license on the file's page, not just the website's general terms.<br>
+    2. Give credit when the license asks for it, and keep the link to the license.<br>
+    3. Do not use a file for purposes the license forbids, such as commercial use if it says non-commercial.<br>
+    4. If you cannot find the license, do not use the file.</p>
+  </div>
+
+  <footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</main>
+
+<script>
+const SOURCES = [
+  { name:'Pexels', url:'https://www.pexels.com', type:['video','image'], note:'Free stock photos and videos. Credit is appreciated but not required.' },
+  { name:'Pixabay', url:'https://pixabay.com', type:['video','image','music'], note:'Free images, videos and music under the Pixabay license.' },
+  { name:'Internet Archive', url:'https://archive.org', type:['video','music'], note:'Large library of public-domain and Creative Commons material. Check each item.' },
+  { name:'YouTube Audio Library', url:'https://www.youtube.com/audiolibrary', type:['music'], note:'Free music and sound effects for YouTube videos. Check each track\'s credit requirement.' },
+  { name:'Free Music Archive', url:'https://freemusicarchive.org', type:['music'], note:'Music under Creative Commons licenses. Each track lists its license.' },
+  { name:'Jamendo', url:'https://www.jamendo.com', type:['music'], note:'Independent artists. Check the license shown for each track.' },
+  { name:'Wikimedia Commons', url:'https://commons.wikimedia.org', type:['image','video','music'], note:'Images, video and audio with clear license details on each file page.' },
+  { name:'Unsplash', url:'https://unsplash.com', type:['image'], note:'Free photos under the Unsplash license. Read its terms for restrictions.' }
+];
+let active='all';
+const $=id=>document.getElementById(id);
+function filters(){
+  const f=$('filters'); f.innerHTML='';
+  ['all','music','video','image'].forEach(t=>{
+    const b=document.createElement('button');
+    b.textContent=t==='all'?'All':t[0].toUpperCase()+t.slice(1)+'s';
+    if(t===active)b.className='on';
+    b.onclick=()=>{active=t;filters();list();};
+    f.appendChild(b);
+  });
+}
+function list(){
+  const box=$('list');
+  const items=SOURCES.filter(s=>active==='all'||s.type.includes(active));
+  box.innerHTML=items.map(s=>
+    `<div class="src"><div><b>${s.name}${s.type.map(t=>`<span class="tag">${t}</span>`).join('')}</b><span>${s.note}</span></div>`+
+    `<a href="${s.url}" target="_blank" rel="noopener">Visit</a></div>`).join('');
+}
+$('make').onclick=()=>{
+  const t=$('title').value.trim(),c=$('creator').value.trim(),s=$('source').value.trim(),l=$('license').value.trim();
+  if(!t||!c){$('ok').textContent='Enter at least the title and the creator.';return;}
+  let line=`"${t}" by ${c}`;
+  if(s)line+=`, from ${s}`;
+  if(l)line+=`, licensed under ${l}`;
+  line+='.';
+  $('credit').value=line;$('ok').textContent='Credit line ready.';
+};
+$('copy').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('credit').value);$('ok').textContent='Copied.';}
+  catch(e){$('credit').select();$('ok').textContent='Select the text and copy it.';}
+};
+filters();list();
+</script>
+</body>
+</html>

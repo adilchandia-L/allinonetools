@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Weight Calculator</title>
+<style>
+:root{--bg:#f2efe9;--ink:#26231f;--card:#fff;--line:#d8d2c6;--acc:#a14a1a;--accI:#fff;--mute:#7a7266;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#181614;--ink:#efeae2;--card:#221f1c;--line:#3a3530;--acc:#f0a070;--accI:#2a1608;--mute:#a39a8c}}
+:root[data-theme="dark"]{--bg:#181614;--ink:#efeae2;--card:#221f1c;--line:#3a3530;--acc:#f0a070;--accI:#2a1608;--mute:#a39a8c}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:17px}
+main{max-width:480px;margin:0 auto;padding:14px}
+h1{font-size:26px;margin:4px 0 12px}
+.tabs{display:flex;gap:6px}
+button{font:inherit;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tabs button{flex:1}button.on{background:var(--acc);border-color:var(--acc);color:var(--accI)}
+label{display:block;font-size:14px;color:var(--mute);margin:12px 0 4px}
+input,select{width:100%;font:inherit;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.two{display:flex;gap:8px}.two>*{flex:1;min-width:0}
+.list{margin-top:14px;display:grid;gap:6px}
+.list div{display:flex;justify-content:space-between;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 14px}
+.list div.me{border-color:var(--acc)}
+.list b{font-size:18px}.list span{color:var(--mute)}
+.big{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;text-align:center}
+.big b{font-size:48px;color:var(--acc);display:block;line-height:1.1}
+.note{font-size:13px;color:var(--mute);margin-top:12px}
+.hide{display:none}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Weight Calculator</h1>
+<div class="tabs"><button id="t1" class="on">Convert weight</button><button id="t2">BMI and healthy range</button></div>
+
+<section id="p1">
+<label for="v">Amount</label>
+<div class="two"><input id="v" type="number" inputmode="decimal" value="70" step="any"><select id="u"></select></div>
+<div class="list" id="res"></div>
+</section>
+
+<section id="p2" class="hide">
+<label for="sys">Units</label>
+<select id="sys"><option value="m">Metric (kg, cm)</option><option value="i">Imperial (lb, ft, in)</option></select>
+<label>Height</label>
+<div class="two" id="hm"><input id="cm" type="number" inputmode="decimal" placeholder="cm" value="170"></div>
+<div class="two hide" id="hi"><input id="ft" type="number" inputmode="decimal" placeholder="ft" value="5"><input id="in" type="number" inputmode="decimal" placeholder="in" value="7"></div>
+<label id="wl" for="w">Weight (kg)</label><input id="w" type="number" inputmode="decimal" value="70" step="any">
+<div id="bmi"></div>
+</section>
+<p class="note">BMI is a rough screening number. It ignores muscle, age and body type, so ask a health professional about your own situation.</p>
+
+<script>
+const $=id=>document.getElementById(id);
+const U={Kilograms:['kg',1],Grams:['g',.001],Milligrams:['mg',1e-6],Pounds:['lb',.45359237],Ounces:['oz',.028349523125],Stone:['st',6.35029318],'Metric tonnes':['t',1000],'US tons':['ton',907.18474]};
+Object.keys(U).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n+' ('+U[n][0]+')';$('u').appendChild(o)});
+const f=(x,d=4)=>{if(!isFinite(x))return '–';const a=Math.abs(x);return a>=1e9||(a>0&&a<1e-4)?x.toExponential(3):parseFloat(x.toFixed(a>=100?2:d)).toLocaleString(undefined,{maximumFractionDigits:6})};
+function conv(){const v=parseFloat($('v').value),u=$('u').value,r=$('res');r.textContent='';if(isNaN(v)){return}
+ const kg=v*U[u][1];Object.keys(U).forEach(n=>{const d=document.createElement('div');if(n===u)d.className='me';d.innerHTML='<span>'+n+'</span><b>'+f(kg/U[n][1])+' '+U[n][0]+'</b>';r.appendChild(d)});
+ if(u==='Pounds'||u==='Kilograms'||u==='Stone'){const lb=kg/.45359237,st=Math.floor(lb/14),rest=lb-st*14;const d=document.createElement('div');d.innerHTML='<span>Stone and pounds</span><b>'+st+' st '+f(rest,1)+' lb</b>';r.appendChild(d)}}
+['v','u'].forEach(i=>$(i).oninput=conv);conv();
+function show(n){$('p1').classList.toggle('hide',n!==1);$('p2').classList.toggle('hide',n!==2);$('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2)}
+$('t1').onclick=()=>show(1);$('t2').onclick=()=>show(2);
+function bmi(){const imp=$('sys').value==='i';$('hm').classList.toggle('hide',imp);$('hi').classList.toggle('hide',!imp);$('wl').textContent='Weight ('+(imp?'lb':'kg')+')';
+ const w=parseFloat($('w').value);let h=imp?((parseFloat($('ft').value)||0)*12+(parseFloat($('in').value)||0))*.0254:parseFloat($('cm').value)/100;
+ const o=$('bmi');if(!(w>0)||!(h>0.5)||h>2.8){o.textContent='';return}
+ const kg=imp?w*.45359237:w,b=kg/(h*h),cat=b<18.5?'Below the typical range':b<25?'In the typical range':b<30?'Above the typical range':'Well above the typical range';
+ const lo=18.5*h*h,hi=24.9*h*h,sh=x=>imp?f(x/.45359237,1)+' lb':f(x,1)+' kg';
+ o.innerHTML='<div class="big"><b>'+b.toFixed(1)+'</b>BMI · '+cat+'</div><div class="list"><div><span>Typical range for your height</span><b>'+sh(lo)+' to '+sh(hi)+'</b></div><div><span>Difference from nearest end</span><b>'+(kg<lo?'+'+sh(lo-kg):kg>hi?'−'+sh(kg-hi):'None')+'</b></div></div>'}
+['sys','cm','ft','in','w'].forEach(i=>$(i).oninput=bmi);
+$('sys').onchange=()=>{const imp=$('sys').value==='i',kg=parseFloat($('w').value);if(kg>0)$('w').value=imp?(kg/.45359237).toFixed(1):(kg*.45359237).toFixed(1);const cm=parseFloat($('cm').value);if(imp){const ti=(cm||170)/2.54;$('ft').value=Math.floor(ti/12);$('in').value=(ti%12).toFixed(1)}else{$('cm').value=(((parseFloat($('ft').value)||0)*12+(parseFloat($('in').value)||0))*2.54).toFixed(0)}bmi()};
+bmi();
+</script></main><style>.help{max-width:640px;margin:24px auto 40px;padding:0 16px;font-family:system-ui,sans-serif;color:inherit;line-height:1.5}
+.help h2{font-size:18px;margin:0 0 6px}.help h3{font-size:15px;margin:18px 0 4px}.help p,.help li{font-size:15px;opacity:.9;margin:4px 0}
+.help details{border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:8px 12px;margin:6px 0}
+.help summary{cursor:pointer;font-weight:600;font-size:15px}.help details p{margin:6px 0 2px}</style>
+<section class="help" aria-label="How to use and FAQ"><h2>How to use</h2><p>On Convert weight, type an amount and pick its unit to see it in other units. On BMI and healthy range, choose metric or imperial, enter height and weight, and read your BMI and typical weight range.</p><h3>FAQ</h3><details><summary>Is BMI accurate for everyone?</summary><p>No. It is a rough screening number that ignores muscle and body type.</p></details><details><summary>Can I switch units?</summary><p>Yes. Change the units in the BMI tab and your numbers convert.</p></details><details><summary>Is this medical advice?</summary><p>No. Speak to a health professional about your health.</p></details></section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

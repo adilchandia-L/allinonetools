@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Screen Recorder and GIF Maker</title>
+<style>
+:root{--bg:#f5f3ff;--ink:#1f1b3a;--card:#fff;--line:#ddd6f5;--acc:#6d28d9;--accI:#fff;--mute:#6b6590;--bad:#dc2626;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#110e22;--ink:#ece9ff;--card:#1b1732;--line:#342d5c;--acc:#a78bfa;--accI:#1a0f3b;--mute:#a7a1cc;--bad:#f87171;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#110e22;--ink:#ece9ff;--card:#1b1732;--line:#342d5c;--acc:#a78bfa;--accI:#1a0f3b;--mute:#a7a1cc;--bad:#f87171;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:720px;margin:0 auto;padding:14px}
+h1{font-size:25px;margin:6px 0 4px}
+h2{font-size:18px;margin:0 0 8px}
+.lead{color:var(--mute);margin:0 0 12px;font-size:15px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+button,select,input{font:inherit}
+button{padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+button.r{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+select{padding:9px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+video{width:100%;max-height:300px;border-radius:12px;background:#000;margin-top:10px;display:none}
+#timer{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:10px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--bad);margin-right:6px;vertical-align:middle;animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.2}}
+.msg{font-size:14px;color:var(--mute);margin-top:8px;min-height:20px}
+.err{color:var(--bad);font-size:15px;margin-top:8px;min-height:20px}
+.ok{color:var(--good);font-size:14px;margin-top:6px;min-height:18px}
+.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:10px;display:none}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .15s}
+img#gifout{display:none;max-width:100%;border-radius:12px;border:1px solid var(--line);margin-top:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.grid{grid-template-columns:1fr}}
+label{font-size:14px;font-weight:600}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:center;font-size:13px;opacity:.7;padding:18px 12px 24px}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Screen Recorder & GIF Maker 🎥</h1>
+<p class="lead">Record your screen, or pick a video file, and turn a short clip into an animated GIF.</p>
+
+<div class="card">
+ <h2>1. Record your screen</h2>
+ <div class="row">
+  <button class="p" id="rec">⏺️ Start recording</button>
+  <button id="stop" disabled>⏹️ Stop</button>
+ </div>
+ <div id="timer"></div>
+ <p class="msg" id="rmsg">Your browser will ask which window or screen to share. Choose it, then press Stop when you are done.</p>
+ <div class="err" id="rerr" aria-live="polite"></div>
+ <video id="pv" controls playsinline></video>
+ <div class="row" id="rdl" style="display:none">
+  <button id="rsave">💾 Save recording (WebM)</button>
+ </div>
+</div>
+
+<div class="card">
+ <h2>2. Make a GIF</h2>
+ <div class="row">
+  <label for="vf">Or use a video file:</label>
+  <input id="vf" type="file" accept="video/*">
+ </div>
+ <div class="grid" style="margin-top:12px">
+  <div><label for="fps">Frames per second</label><select id="fps" style="width:100%"><option value="5">5 (smallest file)</option><option value="8" selected>8 (good)</option><option value="12">12 (smoother)</option></select></div>
+  <div><label for="wd">Width</label><select id="wd" style="width:100%"><option value="320">320 px (small)</option><option value="480" selected>480 px (good)</option><option value="640">640 px (large)</option></select></div>
+ </div>
+ <div class="grid" style="margin-top:10px">
+  <div><label for="st">Start (seconds)</label><input id="st" type="number" min="0" step="0.5" value="0" style="width:100%;padding:9px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)"></div>
+  <div><label for="ln">Length (seconds, max 15)</label><input id="ln" type="number" min="0.5" max="15" step="0.5" value="5" style="width:100%;padding:9px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)"></div>
+ </div>
+ <div class="row">
+  <button class="p" id="mk" disabled>🎞️ Make GIF from recording</button>
+  <button id="mkf" disabled>🎞️ Make GIF from file</button>
+ </div>
+ <div class="bar" id="bar"><i id="fill"></i></div>
+ <div class="msg" id="gmsg"></div>
+ <div class="err" id="gerr" aria-live="polite"></div>
+ <img id="gifout" alt="Your GIF">
+ <div class="row" id="gdl" style="display:none"><button class="p" id="gsave">💾 Save GIF</button></div>
+ <div class="ok" id="gok"></div>
+</div>
+
+<section class="help">
+ <h2>How to use</h2>
+ <p style="margin:0 0 6px">To record, press Start recording, choose the window or screen to share, then press Stop. Save the recording if you want to keep it. To make a GIF, pick the clip you want, choose how many frames per second and the width, set where it starts and how long it lasts, then press Make GIF. Save the file when it's ready.</p>
+ <details><summary>Why is my GIF big or slow to make?</summary><p>Longer clips, more frames per second and bigger widths make larger files that take longer. Try 8 frames per second, 320 or 480 px wide and a shorter length.</p></details>
+ <details><summary>The screen share button does nothing. Why?</summary><p>Screen recording needs a desktop browser such as Chrome, Edge or Firefox, and some phones and tablets do not support it. Recording may also be blocked inside some preview windows, so try opening the page in a new tab.</p></details>
+ <details><summary>Why is the recording a WebM file?</summary><p>WebM is the format most browsers record in. It plays in most video players. For sharing on a phone or in a chat, the GIF is usually easier.</p></details>
+ <details><summary>Does it save my recordings?</summary><p>No. Recordings and GIFs stay on your device only until you close the page, so save anything you need first.</p></details>
+</section>
+</main>
+
+<script>
+// Minimal GIF89a encoder with a fixed 6x6x6 web-safe palette and LZW compression.
+function lzw(idx){
+  const out=[];let buf=0,bits=0,size=9,next=258;const dict=new Map();
+  const emit=c=>{buf|=c<<bits;bits+=size;while(bits>=8){out.push(buf&255);buf>>>=8;bits-=8}};
+  emit(256);
+  let pre=idx[0];
+  for(let i=1;i<idx.length;i++){
+    const k=idx[i],key=pre*256+k,f=dict.get(key);
+    if(f!==undefined){pre=f;continue}
+    emit(pre);
+    if(next<4096){dict.set(key,next);next++;if(next>(1<<size)&&size<12)size++}
+    else{emit(256);dict.clear();next=258;size=9}
+    pre=k;
+  }
+  emit(pre);emit(257);
+  if(bits>0)out.push(buf&255);
+  return out;
+}
+function palette(){const p=[];for(let r=0;r<6;r++)for(let g=0;g<6;g++)for(let b=0;b<6;b++)p.push([r*51,g*51,b*51]);return p}
+function quantize(rgba,n){ // returns Uint8Array of palette indices
+  const o=new Uint8Array(n);
+  for(let i=0;i<n;i++){
+    const r=Math.round(rgba[i*4]/51),g=Math.round(rgba[i*4+1]/51),b=Math.round(rgba[i*4+2]/51);
+    o[i]=r*36+g*6+b;
+  }
+  return o;
+}
+function encodeGIF(frames,w,h,delayCs){ // frames: array of Uint8ClampedArray RGBA of size w*h*4
+  const bytes=[];const u16=v=>{bytes.push(v&255,(v>>8)&255)};
+  const str=s=>{for(const c of s)bytes.push(c.charCodeAt(0))};
+  str('GIF89a');u16(w);u16(h);bytes.push(0xF7,0,0);
+  const pal=palette();for(let i=0;i<256;i++){const c=pal[i]||[0,0,0];bytes.push(c[0],c[1],c[2])}
+  bytes.push(0x21,0xFF,0x0B);str('NETSCAPE2.0');bytes.push(0x03,0x01,0,0,0);
+  for(const f of frames){
+    bytes.push(0x21,0xF9,0x04,0x08);u16(delayCs);bytes.push(0,0);
+    bytes.push(0x2C);u16(0);u16(0);u16(w);u16(h);bytes.push(0);
+    bytes.push(8);
+    const data=lzw(quantize(f,w*h));
+    for(let i=0;i<data.length;i+=255){const chunk=data.slice(i,i+255);bytes.push(chunk.length,...chunk)}
+    bytes.push(0);
+  }
+  bytes.push(0x3B);
+  return new Uint8Array(bytes);
+}
+
+
+const $=id=>document.getElementById(id);
+const hasShare=!!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia);
+let stream=null,rec=null,chunks=[],recBlob=null,tmr=null,t0=0,srcURL=null,gifBlob=null,busy=false;
+const pv=$('pv');
+function pad(n){return String(n).padStart(2,'0')}
+function fmt(s){s=Math.floor(s);return pad(Math.floor(s/60))+':'+pad(s%60)}
+function setRec(on){$('rec').disabled=on;$('stop').disabled=!on}
+function stopTimer(){clearInterval(tmr);tmr=null}
+$('rec').onclick=async()=>{
+ $('rerr').textContent='';
+ if(!hasShare){$('rerr').textContent='Screen recording is not supported in this browser. Try Chrome, Edge or Firefox on a computer.';return}
+ if(!window.MediaRecorder){$('rerr').textContent='Recording is not supported in this browser.';return}
+ try{stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:15},audio:false})}
+ catch(e){$('rerr').textContent='Screen sharing was cancelled or blocked. Try again and choose a window or screen.';return}
+ const types=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+ const mime=types.find(t=>MediaRecorder.isTypeSupported(t))||'';
+ chunks=[];rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:2500000}:undefined);
+ rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+ rec.onstop=()=>{
+  stopTimer();
+  stream&&stream.getTracks().forEach(t=>t.stop());
+  recBlob=new Blob(chunks,{type:'video/webm'});
+  if(srcURL)URL.revokeObjectURL(srcURL);
+  srcURL=URL.createObjectURL(recBlob);
+  pv.src=srcURL;pv.style.display='block';pv.load();
+  $('rdl').style.display='flex';$('mk').disabled=false;
+  $('timer').textContent='Recorded '+fmt((Date.now()-t0)/1000);
+  $('rmsg').textContent='Press play to check it. Then make a GIF below, or save the WebM file.';
+  setRec(false);
+ };
+ stream.getVideoTracks()[0].addEventListener('ended',()=>{if(rec&&rec.state!=='inactive')rec.stop()});
+ rec.start(1000);t0=Date.now();
+ setRec(true);
+ $('timer').innerHTML='<span class="dot"></span>'+fmt(0);
+ tmr=setInterval(()=>{$('timer').innerHTML='<span class="dot"></span>'+fmt((Date.now()-t0)/1000)},250);
+ $('rmsg').textContent='Recording… press Stop when you are done.';
+};
+$('stop').onclick=()=>{if(rec&&rec.state!=='inactive')rec.stop()};
+$('rsave').onclick=()=>saveFile(recBlob,'recording.webm','video/webm',$('rerr'));
+$('vf').onchange=e=>{const f=e.target.files[0];$('gerr').textContent='';if(!f)return;
+ if(!f.type.startsWith('video/')){$('gerr').textContent='Please choose a video file.';return}
+ if(srcURL&&srcURL!==URL.createObjectURL)0;
+ const u=URL.createObjectURL(f);pv.src=u;pv.style.display='block';pv.load();pv.onloadedmetadata=()=>{$('mkf').disabled=false;$('gmsg').textContent='Video loaded: '+fmt(pv.duration)+' long. Choose a start and length, then Make GIF.';};
+ fileURL=u};
+let fileURL=null;
+function timing(){
+ const d=pv.duration||0;let st=parseFloat($('st').value)||0,ln=parseFloat($('ln').value)||0;
+ if(ln<=0)return{err:'Length must be more than 0.'};
+ if(ln>15)return{err:'Please use 15 seconds or less.'};
+ if(!isFinite(d)||d<=0)return{err:'The video is not ready yet.'};
+ if(st<0)st=0;if(st>=d)return{err:'Start time is past the end of the video.'};
+ return{st,ln:Math.min(ln,d-st)};
+}
+function seek(v,t){return new Promise((res,rej)=>{const h=()=>{v.removeEventListener('seeked',h);res()};v.addEventListener('seeked',h);v.currentTime=t;setTimeout(()=>rej(new Error('timeout')),8000)})}
+async function makeGif(src,isFile){
+ if(busy)return;
+ $('gerr').textContent='';$('gok').textContent='';
+ if(typeof encodeGIF!=='function'){$('gerr').textContent='The GIF tool could not start.';return}
+ const tm=timing();if(tm.err){$('gerr').textContent=tm.err;return}
+ busy=true;$('mk').disabled=true;$('mkf').disabled=true;$('gdl').style.display='none';
+ const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=src;
+ try{
+  await new Promise((res,rej)=>{v.onloadedmetadata=res;v.onerror=()=>rej(new Error('load'))});
+  if(v.readyState<2)await new Promise(r=>v.oncanplay=r);
+  const fps=+$('fps').value,W=+$('wd').value,H=Math.round(W*(v.videoHeight/v.videoWidth||9/16));
+  const n=Math.max(1,Math.round(tm.ln*fps));
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d',{willReadFrequently:true});
+  const frames=[];
+  $('bar').style.display='block';
+  for(let i=0;i<n;i++){
+   const t=Math.min(tm.st+i/fps,(v.duration||tm.st+tm.ln)-0.05);
+   await seek(v,Math.max(0,t));
+   cx.drawImage(v,0,0,W,H);
+   frames.push(cx.getImageData(0,0,W,H).data.slice());
+   $('fill').style.width=Math.round((i+1)/n*70)+'%';
+   $('gmsg').textContent='Capturing frames… '+(i+1)+' of '+n;
+   if(i%5===4)await new Promise(r=>setTimeout(r,0));
+  }
+  $('gmsg').textContent='Building GIF…';
+  await new Promise(r=>setTimeout(r,20));
+  const bytes=encodeGIF(frames,W,H,Math.round(100/fps));
+  $('fill').style.width='100%';
+  gifBlob=new Blob([bytes],{type:'image/gif'});
+  const gu=URL.createObjectURL(gifBlob);
+  const img=$('gifout');img.src=gu;img.style.display='block';
+  $('gdl').style.display='flex';
+  $('gmsg').textContent='GIF ready: '+W+' × '+H+' px, '+n+' frames, '+(bytes.length/1024).toFixed(0)+' KB.';
+ }catch(e){$('gerr').textContent='Could not make the GIF from this video. Try a different clip or shorter length.'}
+ finally{$('bar').style.display='none';$('fill').style.width='0';busy=false;$('mk').disabled=!recBlob;$('mkf').disabled=!fileURL}
+}
+$('mk').onclick=()=>{if(recBlob)makeGif(srcURL)};
+$('mkf').onclick=()=>{if(fileURL)makeGif(fileURL)};
+async function saveFile(blob,name,type,errEl){
+ if(!blob){return}
+ try{const d=await claude.use('downloads');if(!d)throw 0;const buf=new Uint8Array(await blob.arrayBuffer());await d.save({filename:name,data:buf});$('gok').textContent='Saved '+name+'.'}
+ catch(e){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();$('gok').textContent='Downloaded '+name+'.'}
+}
+$('gsave').onclick=()=>saveFile(gifBlob,'animation.gif','image/gif');
+if(!hasShare){$('rmsg').textContent='Screen recording is not available in this browser. You can still make a GIF from a video file.';$('rec').disabled=true}
+</script>
+</main><footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

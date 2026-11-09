@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Letter Studio</title>
+<style>
+:root{--bg:#fbf5ef;--ink:#2e2a26;--card:#fff;--line:#e4d9cc;--acc:#e0477a;--accI:#fff;--mute:#7d7268;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1716;--ink:#efe9e2;--card:#242019;--line:#3d352d;--acc:#ff7fa3;--accI:#2a0f18;--mute:#a79d92}}
+:root[data-theme="dark"]{--bg:#1a1716;--ink:#efe9e2;--card:#242019;--line:#3d352d;--acc:#ff7fa3;--accI:#2a0f18;--mute:#a79d92}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px}
+main{max-width:760px;margin:0 auto;padding:12px}
+h1{font-size:28px;margin:4px 0 6px}
+.sub{color:var(--mute);font-size:14px;margin:0 0 6px}
+.lbl{font-size:13px;color:var(--mute);margin:14px 0 6px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+button,select,input,textarea{font:inherit}
+button{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button:active{transform:scale(.96)}
+button.on{background:var(--acc);border-color:var(--acc);color:var(--accI)}
+button.big{border-radius:14px;padding:13px 16px;width:100%;font-size:18px;background:linear-gradient(90deg,#ff7aa2,#ffb347,#8fd694,#6ec6ff);color:#2a1a24;border:0;font-weight:700}
+button.em{font-size:22px;padding:2px 5px;border:0;background:none;border-radius:8px}
+button.em:hover{background:var(--line)}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+textarea{min-height:190px;line-height:1.6;resize:vertical;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tpl{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.tpl button{border-radius:12px;padding:0;overflow:hidden;text-align:left;background:var(--card);border:2px solid var(--line)}
+.tpl button.on{border-color:var(--acc);background:var(--card);color:var(--ink)}
+.tpl .sw{display:block;height:54px;line-height:54px;text-align:center;font-size:22px}
+.tpl .nm{display:block;padding:6px 8px;font-size:13px;color:var(--mute)}
+.pal{display:flex;flex-wrap:wrap;gap:2px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-top:6px}
+.sw2{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);padding:0;cursor:pointer}
+.sw2.on{outline:2px solid var(--acc);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.row>button,.row>select{flex:0 0 auto}
+.hint{font-size:13px;color:var(--mute);margin-top:6px}
+#paper{margin-top:14px;padding:26px 30px;min-height:420px;border-radius:14px;box-shadow:0 6px 22px #0002;position:relative;overflow:hidden}
+.deco{display:flex;justify-content:center;gap:6px;font-size:26px;letter-spacing:4px;line-height:1.2}
+#body2{white-space:pre-wrap;word-wrap:break-word;margin:14px 0;line-height:var(--ls,1.7);font-size:var(--fs,17px)}
+@media print{body{background:#fff}main>*:not(#preview-wrap){display:none!important}#paper{box-shadow:none;margin:0}#preview-wrap{display:block!important}}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Letter Studio 💌</h1>
+<p class="sub">Pick an occasion, a look, then make it yours with stickers, colors and fonts.</p>
+
+<p class="lbl">🎉 Occasion</p>
+<div class="chips" id="occ"></div>
+
+<p class="lbl">🎨 Look</p>
+<div class="tpl" id="tpl"></div>
+
+<p class="lbl">✍️ Names and tone</p>
+<div class="grid">
+ <input id="to" placeholder="To, e.g. Mom 💕">
+ <input id="fr" placeholder="From, your name 🌟">
+</div>
+<div class="grid" style="margin-top:8px">
+ <input id="nm" placeholder="Their name, optional 🎀">
+ <select id="tone"><option value="warm">💗 Warm and heartfelt</option><option value="funny">😜 Light and funny</option><option value="short">🌼 Short and simple</option></select>
+</div>
+<div class="row"><button class="big" id="fill">✨ Write my letter</button></div>
+
+<p class="lbl">😍 Stickers: tap to add at the cursor in the letter</p>
+<div class="pal" id="pal"></div>
+
+<p class="lbl">🖍️ Decorate the page</p>
+<div class="row">
+ <span class="hint">Border</span>
+ <select id="bsel"><option value="none">None</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="both" selected>Top and bottom</option></select>
+ <span class="hint">Sticker set</span>
+ <select id="bemo"></select>
+</div>
+<div class="row"><span class="hint">Font</span><select id="font"></select><span class="hint">Size</span><select id="fs"><option>14</option><option selected>17</option><option>20</option><option>24</option></select><span class="hint">Spacing</span><select id="ls"><option value="1.4">Tight</option><option value="1.7" selected>Normal</option><option value="2.1">Airy</option></select></div>
+<div class="row"><span class="hint">Text color</span><div id="cols" style="display:flex;gap:5px;flex-wrap:wrap"></div></div>
+
+<p class="lbl">📝 Edit your letter</p>
+<div class="row">
+ <button id="sprinkle">🌈 Add emojis to every line</button>
+ <button id="noemo">🧹 Remove all emojis</button>
+ <button id="para">↵ New paragraph</button>
+ <button id="caps">🔠 Capitalize sentences</button>
+ <button id="bullet">⭐ Star each line</button>
+ <button id="reset">🔄 Start over from template</button>
+</div>
+<textarea id="body" style="margin-top:8px" placeholder="Your letter appears here. You can type and edit anything."></textarea>
+<p class="hint" id="count"></p>
+
+<div class="row"><button id="prt">🖨️ Print or save as PDF</button><button id="txt">💾 Save as text</button><button id="cp">📋 Copy</button></div>
+<p id="msg" class="hint"></p>
+
+<p class="lbl">👀 Preview</p>
+<div id="preview-wrap"><div id="paper"><div id="deco-t" class="deco"></div><div id="body2"></div><div id="deco-b"></div></div></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const EM=/\p{Extended_Pictographic}\uFE0F?/gu;
+const OCC={"Mother's Day":'🌷',Birthday:'🎂',"Thank you":'💌',"Just because":'🌼',"Get well":'🌿',Anniversary:'💍',Christmas:'🎄',"New Year":'✨',"Missing you":'🕊️',Congratulations:'🎉'};
+const DES={
+ Classic:{bg:'#fffdf8',f:'Georgia,serif',c:'#2e2a26',bd:'#e5d9c8',ico:'📜'},
+ Blush:{bg:'#fff0f5',f:'"Palatino Linotype",Palatino,serif',c:'#5b2a3a',bd:'#f7b6c9',ico:'🌸'},
+ Garden:{bg:'#f1faee',f:'Georgia,serif',c:'#2f4a2a',bd:'#9fd39a',ico:'🌿'},
+ Sunrise:{bg:'#fff7e0',f:'"Trebuchet MS",sans-serif',c:'#5a3a1a',bd:'#ffc766',ico:'🌅'},
+ Rainbow:{bg:'linear-gradient(160deg,#fff5fb,#f3fbff 50%,#fffbe8)',f:'"Trebuchet MS",sans-serif',c:'#3b2a4a',bd:'#ff9ecf',ico:'🌈'},
+ Confetti:{bg:'#fffaf0',f:'"Segoe UI",system-ui,sans-serif',c:'#222',bd:'#7fd3ff',ico:'🎊'},
+ Ocean:{bg:'#e8f7fb',f:'"Segoe UI",system-ui,sans-serif',c:'#0b3d55',bd:'#5ac4e6',ico:'🌊'},
+ Midnight:{bg:'#1e2740',f:'Georgia,serif',c:'#eef0f8',bd:'#6c7bc4',ico:'🌙'},
+ Minimal:{bg:'#ffffff',f:'system-ui,sans-serif',c:'#222',bd:'#e6e6e6',ico:'⬜'}
+};
+const FONTS={'Classic serif':'Georgia,serif','Modern':'system-ui,sans-serif','Handwritten':'"Segoe Print","Comic Sans MS",cursive','Elegant':'"Palatino Linotype",Palatino,serif','Playful':'"Trebuchet MS",sans-serif'};
+const SETS={'Flowers':'🌸🌷🌼🌻💐🌹','Hearts':'💖💕💗💞💝❤️','Party':'🎉🎈🎊🥳🎂🎁','Sparkle':'✨⭐🌟💫🌈🦄','Nature':'🌿🍃🦋🐝🌞🌙','Sweets':'🍰🧁🍩🍭🍓🍫'};
+const COLS=['#2e2a26','#e0477a','#7b2cbf','#1d7fd6','#2a9d8f','#e76f00','#8d5524','#ffffff'];
+const PAL='😀😍🥰😘😊🤗😂🥹😎🤩😇🙏💖💕💗💞💝💘❤️🧡💛💚💙💜🤍✨⭐🌟💫🔥🌈🌸🌷🌼🌻🌹🌺💐🍀🌿🍃🦋🐝🐞🐬🦄🐣🐶🐱🐰🦊🍰🧁🍩🍭🍓🍑🍉🍫🎂🎁🎉🎈🎊🥳🏆👑💌💍🌙☀️⛅🌊🕊️🎵🎀'.match(EM);
+const T={
+ "Mother's Day":{
+  warm:['Dear {to},','','Thank you for every early morning, every patient answer, and every time you made the hard days feel lighter. I don\'t say it enough, but I see everything you\'ve done for me, and I\'m so grateful to have you.','','Happy Mother\'s Day. I love you more than words can say.','','With all my love,','{from}'],
+  funny:['Dear {to},','','I\'m writing this because you asked me to "be sincere for once." So here it is: you\'re the best mom in the world, and you were right about everything, even the things I didn\'t want to hear.','','Happy Mother\'s Day! Breakfast is on me. Probably burnt, but with love.','','Love you,','{from}'],
+  short:['Happy Mother\'s Day, {to}.','','Thank you for everything.','','Love,','{from}']},
+ Birthday:{
+  warm:['Dear {to},','','Happy birthday! I hope this year brings you every bit of the happiness you\'ve given everyone around you.','','Thank you for being someone I can always count on. I\'m so glad you\'re in my life, and I hope today is as wonderful as you are.','','With love,','{from}'],
+  funny:['Happy birthday, {to}!','','Another year older, but somehow still the best-looking person I know. I\'m told that\'s just a rumour.','','May your cake be big, your candles be few, and your gifts be the kind you can actually use.','','Cheers,','{from}'],
+  short:['Happy birthday, {to}!','','Wishing you a great year ahead.','','{from}']},
+ "Thank you":{
+  warm:['Dear {to},','','I just wanted to take a moment to say thank you. Your kindness did not go unnoticed, and it made a real difference to me.','','I\'m lucky to have you, and I hope I can return the favour someday.','','With gratitude,','{from}'],
+  funny:['Dear {to},','','Thank you for putting up with me, bringing snacks, and not telling anyone about that thing. You\'re a legend.','','Gratefully yours,','{from}'],
+  short:['Thank you, {to}.','','I really appreciate it.','','{from}']},
+ "Just because":{
+  warm:['Dear {to},','','I was thinking about you today and wanted to let you know you\'re on my mind. No reason in particular, just a feeling that you deserve to hear something kind.','','I hope your week is gentle and good to you.','','Love,','{from}'],
+  funny:['Dear {to},','','No occasion. No gift. No catch. I just remembered you\'re awesome and wanted to say so.','','Your favourite human,','{from}'],
+  short:['Hi {to}, just thinking of you.','','{from}']},
+ "Get well":{
+  warm:['Dear {to},','','I was so sorry to hear you\'re unwell. Please take all the time you need to rest and recover. Nothing needs to be done right now except looking after yourself.','','Sending you healing wishes and a lot of love.','','Get well soon,','{from}'],
+  funny:['Dear {to},','','I heard you\'ve been sick, so I\'m officially appointing myself as the person who brings soup and complains about the TV remote on your behalf.','','Feel better soon!','','{from}'],
+  short:['Get well soon, {to}.','','{from}']},
+ Anniversary:{
+  warm:['My dearest {to},','','Another year together, and I\'m still just as glad that I chose you. Every year with you has been better than the last, and I look forward to every one still to come.','','Happy anniversary. I love you.','','Always yours,','{from}'],
+  funny:['Dear {to},','','Happy anniversary! Somehow you\'ve put up with me for another year. I\'m not sure how you do it, but I\'m very, very grateful.','','Yours,','{from}'],
+  short:['Happy anniversary, {to}.','','Love you.','','{from}']},
+ Christmas:{
+  warm:['Dear {to},','','Wishing you a warm and peaceful Christmas, full of good food, laughter and time with the people you love. Thank you for being part of my year.','','Merry Christmas.','','With love,','{from}'],
+  funny:['Dear {to},','','Merry Christmas! I promise to stop eating the cookies before you get home. Probably.','','Ho ho ho,','{from}'],
+  short:['Merry Christmas, {to}!','','{from}']},
+ "New Year":{
+  warm:['Dear {to},','','As this year comes to a close, I want to thank you for the moments that made it special. I\'m hopeful for what the new year brings for both of us.','','Happy New Year.','','With love,','{from}'],
+  funny:['Dear {to},','','New year, same me, but with slightly better intentions. I\'m going to try harder, starting tomorrow.','','Happy New Year!','{from}'],
+  short:['Happy New Year, {to}!','','{from}']},
+ "Missing you":{
+  warm:['Dear {to},','','I miss you. The house feels quieter without you, and I keep finding little things that remind me of our time together.','','I can\'t wait to see you again. Until then, know that you\'re always in my thoughts.','','Missing you,','{from}'],
+  funny:['Dear {to},','','It\'s been way too long since we last saw each other. My fridge misses you, and so do I. Let\'s fix this soon.','','Yours,','{from}'],
+  short:['I miss you, {to}.','','{from}']},
+ Congratulations:{
+  warm:['Dear {to},','','Congratulations! All your hard work has paid off, and I couldn\'t be prouder of you. You deserve every bit of this.','','Here\'s to the next chapter.','','With pride,','{from}'],
+  funny:['Dear {to},','','Congratulations! I knew you\'d do it. I\'m only a little bit annoyed that you make it look so easy.','','Cheers,','{from}'],
+  short:['Congratulations, {to}!','','{from}']}
+};
+let occ="Mother's Day",des='Classic',font='Georgia,serif',fsz='17',lsp='1.7',col='',bsel='both',bemo='Flowers';
+const setBtns=(el,list,get,set,fmt)=>{el.textContent='';list.forEach(n=>{const b=document.createElement('button');b.textContent=fmt?fmt(n):n;if(n===get())b.className='on';b.onclick=()=>{set(n);setBtns(el,list,get,set,fmt);render()};el.appendChild(b)})};
+function fill(){
+ const to=$('to').value.trim()||'Mom',fr=$('fr').value.trim()||'Your name';
+ const src=(T[occ]&&T[occ][$('tone').value])||T[occ].warm;
+ $('body').value=src.map(l=>l.replace(/\{to\}/g,to).replace(/\{from\}/g,fr).replace(/\{name\}/g,$('nm').value.trim()||to)).join('\n');render()}
+function sticker(e){const t=$('body'),s=t.selectionStart??t.value.length,en=t.selectionEnd??s;t.value=t.value.slice(0,s)+e+t.value.slice(en);const p=s+e.length;t.focus();t.setSelectionRange(p,p);render()}
+function render(){
+ const d=DES[des],p=$('paper');
+ p.style.background=d.bg;p.style.color=col||d.c;p.style.fontFamily=font;p.style.border='2px solid '+d.bd;
+ $('body2').style.fontSize=fsz+'px';$('body2').style.setProperty('--ls',lsp);$('body2').textContent=$('body').value;
+ const set=SETS[bemo].split(/(?=.)/u).filter(Boolean),row=()=>set.map(x=>x).join(' ');
+ const line=Array.from({length:9},(_,i)=>set[i%set.length]).join(' ');
+ $('deco-t').textContent=(bsel==='top'||bsel==='both')?line:'';
+ $('deco-b').textContent=(bsel==='bottom'||bsel==='both')?line:'';
+ 
+ const n=$('body').value.trim();$('count').textContent=(n?n.split(/\s+/).length:0)+' words · '+($('body').value.match(EM)||[]).length+' emojis'}
+document.addEventListener('DOMContentLoaded',()=>{});
+// setup
+setBtns($('occ'),Object.keys(OCC),()=>occ,v=>{occ=v;fill()},n=>OCC[n]+' '+n);
+(function(){const g=$('tpl');g.textContent='';Object.keys(DES).forEach(n=>{const d=DES[n],b=document.createElement('button');b.className=n===des?'on':'';
+ const sw=document.createElement('span');sw.className='sw';sw.style.background=d.bg;sw.style.color=d.c;sw.style.fontFamily=d.f;sw.style.borderBottom='4px solid '+d.bd;sw.textContent=d.ico;
+ const nm=document.createElement('span');nm.className='nm';nm.textContent=n;b.append(sw,nm);b.onclick=()=>{des=n;[...g.children].forEach(c=>c.classList.toggle('on',c===b));render()};g.appendChild(b)})})();
+PAL.forEach(e=>{const b=document.createElement('button');b.className='em';b.textContent=e;b.onclick=()=>sticker(e);$('pal').appendChild(b)});
+Object.keys(SETS).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n+' '+SETS[n].slice(0,4);if(n===bemo)o.selected=true;$('bemo').appendChild(o)});
+$('bemo').onchange=e=>{bemo=e.target.value;render()};
+$('bsel').onchange=e=>{bsel=e.target.value;render()};
+Object.keys(FONTS).forEach(n=>{const o=document.createElement('option');o.value=FONTS[n];o.textContent=n;$('font').appendChild(o)});
+$('font').onchange=e=>{font=e.target.value;render()};
+$('fs').onchange=e=>{fsz=e.target.value;render()};
+$('ls').onchange=e=>{lsp=e.target.value;render()};
+COLS.forEach(c=>{const b=document.createElement('button');b.className='sw2'+(c===col?' on':'');b.style.background=c;b.title='Text color';b.onclick=()=>{col=c;[...$('cols').children].forEach(x=>x.classList.toggle('on',x===b));render()};$('cols').appendChild(b)});
+const auto=document.createElement('button');auto.textContent='Auto';auto.className='sw2';auto.style.background='linear-gradient(135deg,#fff 40%,#999)';auto.title='Default color';auto.onclick=()=>{col='';render()};$('cols').prepend(auto);
+$('fill').onclick=fill;$('reset').onclick=()=>{fill()};
+$('body').oninput=render;
+$('sprinkle').onclick=()=>{const ems=SETS[bemo].match(EM)||['✨'];$('body').value=$('body').value.split('\n').map(l=>l.trim()?l+' '+ems[Math.floor(Math.random()*ems.length)]:l).join('\n');render()};
+$('noemo').onclick=()=>{$('body').value=$('body').value.replace(EM,'').replace(/[ \t]+\n/g,'\n').replace(/ {2,}/g,' ');render()};
+$('para').onclick=()=>{const t=$('body'),s=t.selectionStart??t.value.length;t.value=t.value.slice(0,s)+'\n\n'+t.value.slice(s);render()};
+$('caps').onclick=()=>{$('body').value=$('body').value.replace(/(^|[.!?]\s+|\n)([a-z])/g,(m,a,b)=>a+b.toUpperCase());render()};
+$('bullet').onclick=()=>{$('body').value=$('body').value.split('\n').map(l=>l.trim()&&!/^⭐/.test(l)?'⭐ '+l:l).join('\n');render()};
+$('to').oninput=()=>{};
+$('prt').onclick=()=>window.print();
+$('txt').onclick=async()=>{const t=$('body').value,m=$('msg');try{const d=await claude.use('downloads');if(!d)throw 0;await d.save({filename:'letter.txt',data:t});m.textContent='Saved.'}catch(e){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='letter.txt';document.body.appendChild(a);a.click();a.remove();m.textContent='Downloaded.'}};
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText($('body').value);$('msg').textContent='Copied.'}catch(e){$('msg').textContent='Copy is not available here. Select the text and copy it.'}};
+fill();
+</script></main><style>.help{max-width:640px;margin:24px auto 40px;padding:0 16px;font-family:system-ui,sans-serif;color:inherit;line-height:1.5}
+.help h2{font-size:18px;margin:0 0 6px}.help h3{font-size:15px;margin:18px 0 4px}.help p,.help li{font-size:15px;opacity:.9;margin:4px 0}
+.help details{border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:8px 12px;margin:6px 0}
+.help summary{cursor:pointer;font-weight:600;font-size:15px}.help details p{margin:6px 0 2px}</style>
+<section class="help" aria-label="How to use and FAQ"><h2>How to use</h2><p>Pick an occasion, then a look. Type who the letter is to and from, choose a tone, and tap Write my letter. Edit the text in the box, add stickers, change the font or color, and use Print or Save to finish.</p><h3>FAQ</h3><details><summary>Can I change the wording?</summary><p>Yes. Edit any line in the box. The preview updates as you type.</p></details><details><summary>How do I add emojis?</summary><p>Tap a sticker in the bar to insert it where the cursor is, or use Add emojis to every line.</p></details><details><summary>How do I keep my letter?</summary><p>Use Save as text, Copy, or Print or save as PDF.</p></details><details><summary>Why do the letters look similar?</summary><p>They are fixed templates, so the same occasion and tone give similar wording. Edit the text to make it personal.</p></details></section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

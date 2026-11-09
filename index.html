@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="allinonetool.space: free drawing, animation, calculator, map, letter and everyday tools in one place.">
+<title>allinonetools</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧰</text></svg>"><text y='.9em' font-size='90'>🧰</text></svg>">
+<style>
+:root{--bg:#f6f4ff;--ink:#241f3a;--card:#fff;--line:#e3dcf7;--acc:#6c4bd6;--mute:#6b6486;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root{--bg:#14121f;--ink:#ece9ff;--card:#1f1b2e;--line:#332c4d;--acc:#a78bfa;--mute:#a59fc2}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+header{text-align:center;padding:48px 16px 24px}
+header h1{font-size:clamp(28px,6vw,44px);margin:0 0 8px}
+header p{color:var(--mute);margin:0 auto;max-width:560px}
+.search{display:block;width:min(560px,92%);margin:20px auto 0;padding:14px 16px;font:inherit;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink)}
+main{max-width:1000px;margin:0 auto;padding:12px 16px 56px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:28px 4px 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:18px;transition:transform .15s,border-color .15s}
+a.card:hover,a.card:focus{transform:translateY(-3px);border-color:var(--acc);outline:none}
+.ico{font-size:34px}
+.card b{display:block;font-size:18px;margin:8px 0 4px}
+.card span{color:var(--mute);font-size:14px}
+.card em{display:inline-block;margin-top:8px;font-style:normal;font-size:12px;color:var(--acc);font-weight:600}
+footer{text-align:center;color:var(--mute);font-size:13px;padding:24px 16px 40px}
+.hide{display:none!important}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body>
+<header>
+ <h1>🧰 allinonetool.space</h1>
+ <p>Free tools in one place. Draw, animate, calculate, explore the map, and write letters. Most work offline.</p>
+ <input class="search" id="q" type="search" placeholder="Search tools…" aria-label="Search tools">
+</header>
+<main>
+<header style="text-align:center;padding:40px 16px 16px"><h1 style="font-size:clamp(28px,6vw,42px);margin:0 0 8px">🧰 allinonetools</h1><p style="color:var(--mute);margin:0 auto;max-width:560px">Free tools in one place. Create, calculate, write, edit images and more. Most run in your browser with no sign-up.</p><input class="search" id="q" type="search" placeholder="Search tools…" aria-label="Search tools" style="display:block;width:min(560px,92%);margin:18px auto 0;padding:14px 16px;font:inherit;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink)"></header>
+ <h2>Create</h2>
+ <div class="grid" data-g>
+  <a class="card" href="letter-studio.html" data-k="letter write card birthday"><div class="ico">💌</div><b>Letter Studio</b><span>Letters for every day with designs, stickers, fonts and colors.</span></a>
+  <a class="card" href="frame-studio.html" data-k="animation frame video draw studio"><div class="ico">🎞️</div><b>Frame Studio</b><span>Draw your own frame-by-frame animation and export a video.</span></a>
+  <a class="card" href="screen-recorder-gif.html" data-k="screen record gif video"><div class="ico">🎥</div><b>Screen Recorder & GIF Maker</b><span>Record your screen and turn a clip into an animated GIF.</span></a>
+  <a class="card" href="gif-maker-phone.html" data-k="gif phone mobile video"><div class="ico">📱</div><b>GIF Maker (Phone)</b><span>Make GIFs from phone videos, with share and download.</span></a>
+  <a class="card" href="doodle-maker.html" data-k="drawing doodle image picture"><div class="ico">✏️</div><b>Doodle Maker</b><span>Describe anything and get a hand-drawn style doodle.</span><em>Needs claude.ai</em></a>
+  <a class="card" href="animation-maker.html" data-k="animation ai scene video"><div class="ico">🎬</div><b>Animation Maker</b><span>Describe a scene and get a short animated drawing.</span><em>Needs claude.ai</em></a>
+ </div>
+ <h2>Calculate</h2>
+ <div class="grid" data-g>
+  <a class="card" href="scientific-calculator.html" data-k="calculator scientific math"><div class="ico">🧮</div><b>Scientific Calculator</b><span>Trig, logs, powers, factorials and history.</span></a>
+  <a class="card" href="percentage-calculator.html" data-k="percentage percent calculator"><div class="ico">％</div><b>Percentage Calculator</b><span>Percent of a number, percent change, add or subtract, reverse percent.</span></a>
+  <a class="card" href="discount-calculator.html" data-k="discount sale price offer"><div class="ico">🏷️</div><b>Discount Calculator</b><span>Find the sale price, the discount, or two discounts in a row.</span></a>
+  <a class="card" href="loan-emi-calculator.html" data-k="loan emi interest bank"><div class="ico">🏦</div><b>Loan & EMI Calculator</b><span>Monthly payment, total interest and a year-by-year schedule.</span></a>
+  <a class="card" href="marks-percentage-calculator.html" data-k="marks grade school percentage"><div class="ico">🎓</div><b>Marks Percentage Calculator</b><span>Subject marks to percentage, grade and pass or fail, classes 6 to 12.</span></a>
+  <a class="card" href="age-calculator.html" data-k="age calculator birthday"><div class="ico">🎂</div><b>Age Calculator</b><span>Exact age in years, months and days, and next birthday.</span></a>
+  <a class="card" href="weight-calculator.html" data-k="weight convert bmi kg lb"><div class="ico">⚖️</div><b>Weight Calculator</b><span>Convert weights and check your BMI.</span></a>
+  <a class="card" href="unit-converter.html" data-k="unit convert length"><div class="ico">📏</div><b>Unit Converter</b><span>Length, weight, area, volume, speed, time, data and temperature.</span></a>
+ </div>
+ <h2>Text & Writing</h2>
+ <div class="grid" data-g>
+  <a class="card" href="word-counter.html" data-k="word character count text"><div class="ico">🔤</div><b>Word & Character Counter</b><span>Words, characters, sentences, reading time and length limits.</span></a>
+  <a class="card" href="image-to-text.html" data-k="ocr image text scan photo"><div class="ico">🖼️</div><b>Image to Text (OCR)</b><span>Read the words from a photo or scan into editable text.</span></a>
+  <a class="card" href="tags-extractor.html" data-k="tags hashtag keywords"><div class="ico">🏷️</div><b>Tags Extractor</b><span>Pull hashtags and key words from your text to use as tags.</span></a>
+  <a class="card" href="notepad.html" data-k="notes notepad write text"><div class="ico">📝</div><b>Notepad</b><span>Write and save several notes in your browser.</span></a>
+  <a class="card" href="instagram-description-extractor.html" data-k="instagram caption hashtag"><div class="ico">📸</div><b>Instagram Description Extractor</b><span>Check hashtags, mentions, length and feed preview of a caption.</span></a>
+ </div>
+ <h2>Images</h2>
+ <div class="grid" data-g>
+  <a class="card" href="image-resizer.html" data-k="image resize compress size"><div class="ico">🖼️</div><b>Image Resizer</b><span>Resize pictures, or shrink them to a target file size in KB.</span></a>
+  <a class="card" href="bg-remover.html" data-k="background remove transparent png"><div class="ico">✂️</div><b>Background Remover</b><span>Remove a solid background and save a transparent PNG.</span></a>
+ </div>
+ <h2>Media</h2>
+ <div class="grid" data-g>
+  <a class="card" href="youtube-thumbnail-downloader.html" data-k="youtube thumbnail image"><div class="ico">🖼️</div><b>YouTube Thumbnail Downloader</b><span>Get a video thumbnail in every size, to open and save.</span></a>
+  <a class="card" href="free-media-finder.html" data-k="free media music video image license"><div class="ico">🔎</div><b>Free Media Finder</b><span>Legal sources for free music, video and images, plus a credit line maker.</span></a>
+ </div>
+ <h2>Tools</h2>
+ <div class="grid" data-g>
+  <a class="card" href="timer-stopwatch.html" data-k="timer stopwatch countdown"><div class="ico">⏱️</div><b>Timer & Stopwatch</b><span>Stopwatch with laps, and a countdown timer with an alarm.</span></a>
+  <a class="card" href="random-picker.html" data-k="random pick coin dice"><div class="ico">🎲</div><b>Random Picker</b><span>Pick a winner from a list, flip a coin or roll dice.</span></a>
+ </div>
+ <footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</main>
+<script>
+const q=document.getElementById('q');
+q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();document.querySelectorAll('a.card').forEach(c=>c.classList.toggle('hide',v&&!(c.dataset.k+' '+c.textContent).toLowerCase().includes(v)));document.querySelectorAll('[data-g]').forEach(g=>g.previousElementSibling.classList.toggle('hide',![...g.children].some(c=>!c.classList.contains('hide'))))});
+</script>
+</body></html>

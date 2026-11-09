@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scientific Calculator</title>
+<style>
+:root{--bg:#e9ecef;--ink:#1b1f23;--card:#fff;--line:#cfd4da;--num:#fff;--fn:#dde3ea;--op:#ffb703;--opI:#2b1d00;--eq:#0b6e4f;--eqI:#fff;--mute:#667;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101214;--ink:#eef0f2;--card:#1a1d20;--line:#2c3136;--num:#262b30;--fn:#1d2227;--op:#d98f00;--opI:#fff;--eq:#2fbf8f;--eqI:#04231a;--mute:#9aa}}
+:root[data-theme="dark"]{--bg:#101214;--ink:#eef0f2;--card:#1a1d20;--line:#2c3136;--num:#262b30;--fn:#1d2227;--op:#d98f00;--opI:#fff;--eq:#2fbf8f;--eqI:#04231a;--mute:#9aa}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif}
+main{max-width:440px;margin:0 auto;padding:10px}
+#disp{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;text-align:right;min-height:104px;display:flex;flex-direction:column;justify-content:flex-end}
+#ex{font-size:24px;word-break:break-all;min-height:32px}
+#rs{font-size:36px;font-weight:600;color:var(--mute);min-height:44px;overflow-x:auto;white-space:nowrap}
+#rs.fin{color:var(--ink)}
+#keys{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+button{font:inherit;font-size:19px;padding:0;height:52px;border-radius:12px;border:0;background:var(--num);color:var(--ink);cursor:pointer;box-shadow:0 1px 0 var(--line)}
+button:active{filter:brightness(.9)}
+button.f{background:var(--fn);font-size:16px}
+button.o{background:var(--op);color:var(--opI);font-size:24px}
+button.e{background:var(--eq);color:var(--eqI);grid-column:span 2;font-size:26px}
+#mode{font-size:14px;font-weight:600}
+#hist{margin-top:12px;font-size:15px;color:var(--mute)}
+#hist div{padding:6px 4px;border-bottom:1px solid var(--line);cursor:pointer;text-align:right}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<div id="disp"><div id="ex"></div><div id="rs">0</div></div>
+<div id="keys"></div>
+<div id="hist"></div>
+<script>
+const $=id=>document.getElementById(id);
+let ex='',deg=true,ans=0,hist=[],done=false;
+const K=[
+['DEG','mode','f'],['sin','sin(','f'],['cos','cos(','f'],['tan','tan(','f'],['AC','ac','f'],
+['sin⁻¹','asin(','f'],['cos⁻¹','acos(','f'],['tan⁻¹','atan(','f'],['ln','ln(','f'],['log','log(','f'],
+['√','sqrt(','f'],['x²','^2','f'],['xʸ','^','f'],['n!','!','f'],['⌫','bs','f'],
+['π','π','f'],['e','e','f'],['(','(','f'],[')',')','f'],['%','%','f'],
+['7','7'],['8','8'],['9','9'],['÷','÷','o'],['Ans','Ans','f'],
+['4','4'],['5','5'],['6','6'],['×','×','o'],['−','−','o'],
+['1','1'],['2','2'],['3','3'],['+','+','o'],['abs','abs(','f'],
+['0','0'],['.','.'],['EXP','×10^','f'],['=','eq','e']
+];
+K.forEach(([l,v,c])=>{const b=document.createElement('button');b.textContent=l;if(c)b.className=c;if(v==='mode')b.id='mode';b.onclick=()=>press(v);$('keys').appendChild(b)});
+const isOp=s=>'+−×÷^'.includes(s);
+function press(v){
+ if(v==='mode'){deg=!deg;$('mode').textContent=deg?'DEG':'RAD';live();return}
+ if(v==='ac'){ex='';done=false;show('');return}
+ if(v==='bs'){if(done){ex='';done=false}else ex=ex.replace(/(sin|cos|tan|asin|acos|atan|ln|log|sqrt|abs)\($|Ans$|.$/,'');return show()}
+ if(v==='eq')return equals();
+ if(done){ex=(isOp(v[0])||'!%'.includes(v))?'Ans':'';done=false}
+ ex+=v;show();
+}
+function show(){$('ex').textContent=ex;live()}
+function live(){const r=$('rs');r.classList.remove('fin');if(!ex){r.textContent='0';return}try{r.textContent=fmt(calc(ex))}catch(e){r.textContent=''}}
+function fmt(x){if(!isFinite(x))throw 0;if(Math.abs(x)<1e-12)x=0;let s=String(parseFloat(x.toPrecision(12)));if(/e/.test(s)){s=s.replace('e','×10^').replace('+','')}return s.replace('-','−')}
+function equals(){
+ if(!ex)return;let e=ex;for(let i=(e.match(/\(/g)||[]).length-(e.match(/\)/g)||[]).length;i>0;i--)e+=')';
+ const r=$('rs');
+ try{const v=calc(e);ans=v;const t=fmt(v);hist.unshift([e,t]);hist=hist.slice(0,6);r.textContent=t;r.classList.add('fin');$('ex').textContent=e+' =';ex=e;done=true;drawHist()}
+ catch(err){r.textContent='Error';r.classList.add('fin');done=true;ex=''}
+}
+function drawHist(){const h=$('hist');h.textContent='';hist.forEach(([e,t])=>{const d=document.createElement('div');d.textContent=e+' = '+t;d.onclick=()=>{ex=t.replace('−','-').replace('×10^','E');ex=t;done=false;show()};h.appendChild(d)})}
+function fact(n){if(n<0||n!==Math.floor(n)||n>170)throw 0;let r=1;for(let i=2;i<=n;i++)r*=i;return r}
+function calc(s){
+ const T=[],re=/\s*(\d+\.?\d*|\.\d+|Ans|asin|acos|atan|sin|cos|tan|sqrt|abs|ln|log|π|e|[+−\-×÷*/^!%()])/y;let m,i=0;
+ while(i<s.length){re.lastIndex=i;m=re.exec(s);if(!m)throw 0;T.push(m[1]);i=re.lastIndex}
+ let p=0;const pk=()=>T[p],nx=()=>T[p++];
+ const num=t=>t!==undefined&&/^(\d|\.|Ans|π|e$)/.test(t),fn=t=>/^(asin|acos|atan|sin|cos|tan|sqrt|abs|ln|log)$/.test(t||'');
+ const rad=x=>deg?x*Math.PI/180:x,back=x=>deg?x*180/Math.PI:x;
+ const F={sin:x=>Math.sin(rad(x)),cos:x=>Math.cos(rad(x)),tan:x=>Math.tan(rad(x)),asin:x=>back(Math.asin(x)),acos:x=>back(Math.acos(x)),atan:x=>back(Math.atan(x)),ln:Math.log,log:Math.log10,sqrt:Math.sqrt,abs:Math.abs};
+ function expr(){let a=term();while(pk()==='+'||pk()==='−'||pk()==='-'){a=nx()==='+'?a+term():a-term()}return a}
+ function term(){let a=unary();for(;;){const t=pk();if(t==='×'||t==='*'){nx();a*=unary()}else if(t==='÷'||t==='/'){nx();a/=unary()}else if(num(t)||fn(t)||t==='('){a*=unary()}else break}return a}
+ function unary(){if(pk()==='−'||pk()==='-'){nx();return -unary()}if(pk()==='+'){nx();return unary()}return pow()}
+ function pow(){let a=post();if(pk()==='^'){nx();a=Math.pow(a,unary())}return a}
+ function post(){let a=prim();for(;;){if(pk()==='!'){nx();a=fact(a)}else if(pk()==='%'){nx();a/=100}else break}return a}
+ function prim(){const t=nx();if(t===undefined)throw 0;
+  if(t==='('){const v=expr();if(pk()===')')nx();return v}
+  if(t==='π')return Math.PI;if(t==='e')return Math.E;if(t==='Ans')return ans;
+  if(fn(t)){if(pk()!=='(')throw 0;nx();const v=expr();if(pk()===')')nx();return F[t](v)}
+  if(/^[\d.]/.test(t))return parseFloat(t);throw 0}
+ const r=expr();if(p<T.length)throw 0;return r;
+}
+document.addEventListener('keydown',e=>{const k=e.key;if(/^[0-9.()%!^]$/.test(k))press(k);else if(k==='+')press('+');else if(k==='-')press('−');else if(k==='*')press('×');else if(k==='/'){e.preventDefault();press('÷')}else if(k==='Enter'||k==='='){e.preventDefault();press('eq')}else if(k==='Backspace')press('bs');else if(k==='Escape')press('ac')});
+</script></main><style>.help{max-width:640px;margin:24px auto 40px;padding:0 16px;font-family:system-ui,sans-serif;color:inherit;line-height:1.5}
+.help h2{font-size:18px;margin:0 0 6px}.help h3{font-size:15px;margin:18px 0 4px}.help p,.help li{font-size:15px;opacity:.9;margin:4px 0}
+.help details{border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:8px 12px;margin:6px 0}
+.help summary{cursor:pointer;font-weight:600;font-size:15px}.help details p{margin:6px 0 2px}</style>
+<section class="help" aria-label="How to use and FAQ"><h2>How to use</h2><p>Tap the keys or type on a keyboard. The result shows as you type. Press = to finish. DEG switches between degrees and radians, and Ans reuses your last answer.</p><h3>FAQ</h3><details><summary>Degrees or radians?</summary><p>The button shows the current mode. Tap it to switch.</p></details><details><summary>How do I use the history?</summary><p>Tap a past calculation to bring it back.</p></details><details><summary>Why does it show Error?</summary><p>Check for missing brackets, a divide by zero, or a value outside the function&#x27;s range, such as the square root of a negative number.</p></details></section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

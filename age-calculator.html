@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Age Calculator</title>
+<style>
+:root{--bg:#eef3f1;--ink:#16302b;--card:#fff;--line:#c5d6d1;--acc:#0f766e;--accI:#fff;--mute:#5b7670;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1816;--ink:#e3f0ec;--card:#182321;--line:#2b3d39;--acc:#5eead4;--accI:#062521;--mute:#8fb0a9}}
+:root[data-theme="dark"]{--bg:#0f1816;--ink:#e3f0ec;--card:#182321;--line:#2b3d39;--acc:#5eead4;--accI:#062521;--mute:#8fb0a9}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;font-size:17px}
+main{max-width:480px;margin:0 auto;padding:18px 16px}
+h1{font-size:28px;margin:6px 0 16px}
+label{display:block;font-size:14px;color:var(--mute);margin:12px 0 4px;font-family:system-ui,sans-serif}
+input{width:100%;font:inherit;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+button{font:inherit;font-family:system-ui,sans-serif;width:100%;margin-top:16px;padding:13px;border-radius:12px;border:0;background:var(--acc);color:var(--accI);font-size:18px;cursor:pointer}
+button.l{background:none;color:var(--mute);margin-top:6px;padding:6px;font-size:14px;text-decoration:underline}
+#res{margin-top:18px}
+.big{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;display:flex;justify-content:space-around;text-align:center}
+.big b{display:block;font-size:44px;line-height:1.1;color:var(--acc)}
+.big span{font-family:system-ui,sans-serif;font-size:13px;color:var(--mute)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.grid div{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.grid b{display:block;font-size:20px}.grid span{font-family:system-ui,sans-serif;font-size:13px;color:var(--mute)}
+.wide{grid-column:1/3}
+.err{color:#c2410c;font-family:system-ui,sans-serif}
+</style><style id="fancy-css">
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+html,body{min-height:100%}
+body{background:radial-gradient(1100px 600px at 0% -10%,rgba(124,58,237,.16),transparent 60%),radial-gradient(900px 500px at 105% 0%,rgba(236,72,153,.13),transparent 60%),var(--bg)!important;background-attachment:fixed;animation:fadeUp .5s ease both}
+h1{background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent!important;letter-spacing:-.01em}
+.card,.box,.res,.emi,.answer,.big:not(button),.st,.stats>div,.stats div,details,.msg:empty~*,a.card,.tpl button,.choice button,.hd~*{box-shadow:0 14px 34px -16px rgba(30,20,70,.28);transition:transform .2s ease,box-shadow .25s ease,border-color .2s}
+.card:hover,a.card:hover,.choice button:hover,.tpl button:hover{transform:translateY(-2px);box-shadow:0 18px 40px -16px rgba(30,20,70,.35)}
+button{transition:transform .15s ease,box-shadow .25s ease,filter .2s ease,background .2s ease}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button.p,button.big,button.on,.big:not(.sec):not(button){box-shadow:0 10px 24px -10px var(--acc)}
+input,select,textarea{transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+::selection{background:var(--acc);color:var(--accI)}
+details{transition:box-shadow .2s ease}
+details[open]{box-shadow:0 14px 34px -18px rgba(30,20,70,.35)}
+summary{transition:color .2s}summary:hover{color:var(--acc)}
+</style>
+</head><body><main>
+<h1>Age Calculator</h1>
+<label for="dob">Date of birth</label><input type="date" id="dob">
+<label for="on">Age on this date</label><input type="date" id="on">
+<button id="go">Calculate age</button><button class="l" id="today">Reset to today</button>
+<div id="res" aria-live="polite"></div>
+<script>
+const $=id=>document.getElementById(id),pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const fmt=n=>n.toLocaleString();
+function today(){$('on').value=iso(new Date());$('on').max='2200-12-31'}
+today();$('dob').max=iso(new Date());
+function nextBday(b,from){let y=from.getFullYear();const mk=yy=>{let d=new Date(yy,b.getMonth(),b.getDate());if(b.getMonth()===1&&b.getDate()===29&&d.getMonth()!==1)d=new Date(yy,2,1);return d};let d=mk(y);if(d<from)d=mk(y+1);return d}
+function calc(){
+ const r=$('res');
+ if(!$('dob').value||!$('on').value){r.innerHTML='<p class="err">Enter a date of birth.</p>';return}
+ const b=parse($('dob').value),t=parse($('on').value);
+ if(b>t){r.innerHTML='<p class="err">Date of birth must be before the second date.</p>';return}
+ let y=t.getFullYear()-b.getFullYear(),m=t.getMonth()-b.getMonth(),d=t.getDate()-b.getDate();
+ if(d<0){m--;d+=new Date(t.getFullYear(),t.getMonth(),0).getDate()}
+ if(m<0){y--;m+=12}
+ const days=Math.round((t-b)/864e5),nb=nextBday(b,t),left=Math.round((nb-t)/864e5),turn=nb.getFullYear()-b.getFullYear();
+ const wd=b.toLocaleDateString(undefined,{weekday:'long'});
+ r.innerHTML='<div class="big"><div><b>'+y+'</b><span>years</span></div><div><b>'+m+'</b><span>months</span></div><div><b>'+d+'</b><span>days</span></div></div>'+
+ '<div class="grid"><div><b>'+fmt(y*12+m)+'</b><span>total months</span></div><div><b>'+fmt(Math.floor(days/7))+'</b><span>total weeks</span></div>'+
+ '<div><b>'+fmt(days)+'</b><span>total days</span></div><div><b>'+fmt(days*24)+'</b><span>total hours</span></div>'+
+ '<div class="wide"><b>'+(left===0?'Happy birthday!':left+' days')+'</b><span>'+(left===0?'Turning '+turn+' today':'until you turn '+turn+' on '+nb.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))+'</span></div>'+
+ '<div class="wide"><b>'+wd+'</b><span>the day you were born</span></div></div>';
+}
+$('go').onclick=calc;$('today').onclick=()=>{today();if($('dob').value)calc()};
+</script></main><style>.help{max-width:640px;margin:24px auto 40px;padding:0 16px;font-family:system-ui,sans-serif;color:inherit;line-height:1.5}
+.help h2{font-size:18px;margin:0 0 6px}.help h3{font-size:15px;margin:18px 0 4px}.help p,.help li{font-size:15px;opacity:.9;margin:4px 0}
+.help details{border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:8px 12px;margin:6px 0}
+.help summary{cursor:pointer;font-weight:600;font-size:15px}.help details p{margin:6px 0 2px}</style>
+<section class="help" aria-label="How to use and FAQ"><h2>How to use</h2><p>Enter a date of birth. The &#x27;Age on this date&#x27; box starts as today, so change it to find age on another day. Tap Calculate age.</p><h3>FAQ</h3><details><summary>Can I find someone else&#x27;s age?</summary><p>Yes. Change the date of birth to theirs.</p></details><details><summary>Why does my birthday count differ?</summary><p>People born on 29 February are counted on 1 March in years without a leap day.</p></details><details><summary>Is the date of birth a required field?</summary><p>Yes. Enter it to see a result.</p></details></section>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+</body></html>

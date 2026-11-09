@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Timer and Stopwatch</title>
+<style>
+:root{--bg:#f3f6ff;--ink:#1a2140;--card:#fff;--line:#d9e0fa;--acc:#4f46e5;--accI:#fff;--mute:#66709a;--bad:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1122;--ink:#e6eaff;--card:#161c36;--line:#2a3366;--acc:#818cf8;--accI:#0b0d24;--mute:#9aa3d1;--bad:#f87171}}
+:root[data-theme="dark"]{--bg:#0d1122;--ink:#e6eaff;--card:#161c36;--line:#2a3366;--acc:#818cf8;--accI:#0b0d24;--mute:#9aa3d1;--bad:#f87171}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45;transition:background .3s}
+body.alarm{background:#fecaca}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:25px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 10px;font-size:15px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+button,input{font:inherit}
+button{padding:11px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .12s,filter .2s}
+button:hover:not(:disabled){filter:brightness(1.06)}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.on,button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;margin-top:12px;box-shadow:0 14px 34px -18px rgba(20,25,70,.35)}
+.clock{font-size:clamp(48px,14vw,76px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.02em;line-height:1.1;background:linear-gradient(90deg,#4f46e5,#db2777);-webkit-background-clip:text;background-clip:text;color:transparent}
+.clock.done{animation:pulse .6s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+.ctrl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.setup{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;text-align:center}
+.setup label{font-size:13px;color:var(--mute);display:block;margin-bottom:4px}
+.setup input{width:100%;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);text-align:center;font-size:18px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;justify-content:center}
+.presets button{padding:7px 12px;font-size:14px;border-radius:999px}
+.laps{margin-top:12px;max-height:260px;overflow:auto;font-variant-numeric:tabular-nums}
+.lap{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid var(--line);font-size:15px}
+.lap:first-child{color:var(--acc);font-weight:600}
+.msg{text-align:center;color:var(--mute);font-size:14px;margin-top:10px;min-height:20px}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 16px 28px}
+</style></head><body><main>
+<h1>Timer & Stopwatch ⏱️</h1>
+<p class="lead">Count up with the stopwatch, or count down with the timer.</p>
+
+<div class="tabs">
+ <button id="tStop" class="on">Stopwatch</button>
+ <button id="tTimer">Timer</button>
+</div>
+
+<!-- STOPWATCH -->
+<div class="card" id="swCard">
+ <div class="clock" id="swClock">00:00.00</div>
+ <div class="ctrl">
+  <button class="p" id="swStart">Start</button>
+  <button id="swLap" disabled>Lap</button>
+  <button id="swReset" disabled>Reset</button>
+ </div>
+ <div class="laps" id="laps"></div>
+</div>
+
+<!-- TIMER -->
+<div class="card" id="tmCard" style="display:none">
+ <div class="clock" id="tmClock">00:00:00</div>
+ <div class="setup">
+  <div><label for="h">Hours</label><input id="h" type="number" min="0" max="23" value="0"></div>
+  <div><label for="m">Minutes</label><input id="m" type="number" min="0" max="59" value="5"></div>
+  <div><label for="s">Seconds</label><input id="s" type="number" min="0" max="59" value="0"></div>
+ </div>
+ <div class="presets">
+  <button data-p="60">1 min</button><button data-p="300">5 min</button><button data-p="600">10 min</button><button data-p="1500">25 min (focus)</button><button data-p="300">Short break 5</button>
+ </div>
+ <div class="ctrl">
+  <button class="p" id="tmStart">Start</button>
+  <button id="tmPause" disabled>Pause</button>
+  <button id="tmReset">Reset</button>
+ </div>
+ <div class="msg" id="tmMsg"></div>
+ <button id="tmStop" style="width:100%;margin-top:10px;display:none">🔕 Stop alarm</button>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px"><b>Stopwatch:</b> press Start, then Lap to record split times. Reset clears everything. <b>Timer:</b> set hours, minutes and seconds, or tap a preset, then press Start. A sound and a flashing screen tell you when time is up.</p>
+ <details><summary>The alarm does not sound. Why?</summary><p>Browsers block sound until you interact with the page. Tap Start first, and turn up your device volume. If your phone is on silent, the alarm will be quiet.</p></details>
+ <details><summary>Will it keep counting if I switch tabs?</summary><p>Yes. The timer checks the real clock, so it stays accurate. If your phone locks the screen, keep the page open to hear the alarm.</p></details>
+ <details><summary>What is the 25-minute preset?</summary><p>It is a common focus length from the Pomodoro method: work for 25 minutes, then take a short break.</p></details>
+ <details><summary>Does it save my times?</summary><p>No. Times are kept only while the page is open.</p></details>
+</section>
+</main>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let swRun=false,swStart=0,swElapsed=0,swRAF=null,laps=[];
+function fmtSW(ms){const c=Math.floor(ms/10)%100,s=Math.floor(ms/1000)%60,m=Math.floor(ms/60000);return pad(m)+':'+pad(s)+'.'+pad(c)}
+function pad(n){return String(n).padStart(2,'0')}
+function swTick(){$('swClock').textContent=fmtSW(swElapsed+(performance.now()-swStart));swRAF=requestAnimationFrame(swTick)}
+$('swStart').onclick=()=>{
+ if(!swRun){swRun=true;swStart=performance.now();swTick();$('swStart').textContent='Stop';$('swLap').disabled=false;$('swReset').disabled=true;}
+ else{swRun=false;cancelAnimationFrame(swRAF);swElapsed+=performance.now()-swStart;$('swClock').textContent=fmtSW(swElapsed);$('swStart').textContent='Start';$('swLap').disabled=true;$('swReset').disabled=false;}
+};
+$('swLap').onclick=()=>{const t=swElapsed+(performance.now()-swStart);const prev=laps.length?laps[laps.length-1].total:0;laps.push({total:t,split:t-prev});renderLaps()};
+$('swReset').onclick=()=>{swElapsed=0;laps=[];$('swClock').textContent='00:00.00';renderLaps();$('swReset').disabled=true};
+function renderLaps(){const box=$('laps');box.innerHTML='';[...laps].reverse().forEach((l,i)=>{const n=laps.length-i;const d=document.createElement('div');d.className='lap';d.innerHTML='<span>Lap '+n+'</span><span>'+fmtSW(l.split)+' &nbsp; <b>'+fmtSW(l.total)+'</b></span>';box.appendChild(d)})}
+
+let tmTotal=300,tmLeft=300,tmRun=false,tmEnd=0,tmTimer=null,audioCtx=null,alarmTimer=null;
+function fmtTM(s){s=Math.max(0,Math.ceil(s));return pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)}
+function showTM(){$('tmClock').textContent=fmtTM(tmLeft);document.title=tmRun?fmtTM(tmLeft)+' · Timer':'Timer and Stopwatch'}
+function setFromInputs(){const h=Math.max(0,+$('h').value||0),m=Math.max(0,+$('m').value||0),s=Math.max(0,+$('s').value||0);tmTotal=h*3600+m*60+s;tmLeft=tmTotal;showTM()}
+['h','m','s'].forEach(i=>$(i).oninput=()=>{if(!tmRun)setFromInputs()});
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{if(tmRun)return;const p=+b.dataset.p;const h=Math.floor(p/3600),m=Math.floor(p%3600/60),s=p%60;$('h').value=h;$('m').value=m;$('s').value=s;setFromInputs();$('tmMsg').textContent=''});
+function beep(){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();let n=0;const ring=()=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=880;o.connect(g);g.connect(audioCtx.destination);g.gain.setValueAtTime(0.3,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.45);o.start();o.stop(audioCtx.currentTime+0.5)};ring();alarmTimer=setInterval(()=>{ring();if(++n>=30)stopAlarm()},700)}catch(e){}}
+function stopAlarm(){clearInterval(alarmTimer);alarmTimer=null;document.body.classList.remove('alarm');$('tmClock').classList.remove('done');$('tmStop').style.display='none'}
+function tmTick(){if(!tmRun)return;tmLeft=(tmEnd-Date.now())/1000;if(tmLeft<=0){tmLeft=0;showTM();tmRun=false;clearInterval(tmTimer);$('tmStart').disabled=false;$('tmPause').disabled=true;$('tmMsg').textContent='Time is up!';$('tmClock').classList.add('done');document.body.classList.add('alarm');$('tmStop').style.display='block';beep();return}showTM()}
+$('tmStart').onclick=()=>{
+ if(tmRun)return;
+ if(tmLeft<=0){setFromInputs()}
+ if(tmLeft<=0){$('tmMsg').textContent='Set a time above zero.';return}
+ stopAlarm();tmRun=true;tmEnd=Date.now()+tmLeft*1000;tmTimer=setInterval(tmTick,250);tmTick();
+ $('tmStart').disabled=true;$('tmPause').disabled=false;$('tmPause').textContent='Pause';$('tmMsg').textContent='';
+};
+$('tmPause').onclick=()=>{
+ if(tmRun){tmRun=false;clearInterval(tmTimer);$('tmPause').textContent='Resume';$('tmStart').disabled=true}
+ else{tmRun=true;tmEnd=Date.now()+tmLeft*1000;tmTimer=setInterval(tmTick,250);$('tmPause').textContent='Pause'}
+};
+$('tmReset').onclick=()=>{tmRun=false;clearInterval(tmTimer);stopAlarm();setFromInputs();$('tmStart').disabled=false;$('tmPause').disabled=true;$('tmPause').textContent='Pause';$('tmMsg').textContent=''};
+$('tmStop').onclick=stopAlarm;
+function tab(t){const sw=t==='sw';$('swCard').style.display=sw?'block':'none';$('tmCard').style.display=sw?'none':'block';$('tStop').classList.toggle('on',sw);$('tTimer').classList.toggle('on',!sw);document.title=sw?'Timer and Stopwatch':(tmRun?fmtTM(tmLeft)+' · Timer':'Timer and Stopwatch')}
+$('tStop').onclick=()=>tab('sw');$('tTimer').onclick=()=>tab('tm');
+setFromInputs();
+</script></main></body></html>

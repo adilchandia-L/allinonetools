@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Instagram Description Extractor</title>
+<style>
+:root{--bg:#fdf4fb;--ink:#2d1430;--card:#fff;--line:#f0d4ea;--acc:#c026d3;--accI:#fff;--mute:#7a5b74;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#170b19;--ink:#f8e9f6;--card:#241227;--line:#4a2a4f;--acc:#e879f9;--accI:#2a0830;--mute:#c9a5c4;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#170b19;--ink:#f8e9f6;--card:#241227;--line:#4a2a4f;--acc:#e879f9;--accI:#2a0830;--mute:#c9a5c4;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:25px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 12px;font-size:15px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+textarea{width:100%;min-height:160px;font:inherit;font-size:16px;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);resize:vertical}
+button{font:inherit;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px}
+.st{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.st b{display:block;font-size:22px;color:var(--acc)}
+.st span{font-size:13px;color:var(--mute)}
+.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;background:var(--acc)}
+.lbl{font-size:14px;font-weight:600;margin:14px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14px}
+.preview{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;white-space:pre-wrap;word-wrap:break-word;font-size:15px}
+.note{font-size:13px;color:var(--mute);margin-top:6px}
+.msg{color:var(--mute);font-size:14px;margin-top:8px;min-height:20px}
+.ok{color:var(--good);font-size:14px;margin-top:6px;min-height:20px}
+.warn{color:#d97706;font-size:14px;margin-top:6px}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 16px 28px}
+</style></head><body><main>
+<h1>Instagram Description Extractor 📸</h1>
+<p class="lead">Paste your Instagram caption. See its hashtags, mentions, links and length, and check how it will look in the feed.</p>
+
+<div class="card">
+ <textarea id="t" placeholder="Paste your Instagram caption here…" aria-label="Your caption"></textarea>
+ <div class="row"><button class="p" id="go">Analyse caption</button><button id="clr">Clear</button></div>
+ <div class="msg" id="msg" aria-live="polite"></div>
+</div>
+
+<div class="card" id="res" style="display:none">
+ <div class="stats" id="stats"></div>
+ <div class="lbl">Length: <span id="lenTxt"></span></div>
+ <div class="bar"><i id="lenBar"></i></div>
+ <div class="warn" id="lenWarn"></div>
+
+ <div class="lbl">Hashtags</div>
+ <div class="chips" id="tags"></div>
+ <div class="lbl">Mentions</div>
+ <div class="chips" id="ments"></div>
+ <div class="lbl">Links</div>
+ <div class="chips" id="links"></div>
+ <div class="lbl">Emojis</div>
+ <div class="chips" id="emo"></div>
+
+ <div class="lbl">Feed preview (the first line shows before "more")</div>
+ <div class="preview" id="prev"></div>
+ <div class="row"><button id="cp">Copy caption</button></div>
+ <div class="ok" id="ok"></div>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px">Paste your caption and tap Analyse caption. You'll see the hashtags, mentions, links and emojis it contains, how many characters it uses, and where the feed cuts it off. Edit your text if needed, then tap Analyse again.</p>
+ <details><summary>What is the character limit?</summary><p>Instagram captions can be up to 2,200 characters. The bar turns orange when you're close to that limit.</p></details>
+ <details><summary>Why does the preview cut off?</summary><p>Instagram usually shows only the first line or about 125 characters before "more". Put your key message at the start.</p></details>
+ <details><summary>How many hashtags should I use?</summary><p>Instagram currently allows up to 30 hashtags per post. Use the ones that really match your post.</p></details>
+ <details><summary>Does it save my text?</summary><p>No. Nothing is stored after you close the page. This tool does not connect to Instagram.</p></details>
+</section>
+</main>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const LIMIT=2200,FIRST=125;
+function chip(parent,items){const b=$(parent);b.textContent='';if(!items.length){const s=document.createElement('span');s.className='chip';s.textContent='None';s.style.opacity='.6';b.appendChild(s);return}items.forEach(t=>{const s=document.createElement('span');s.className='chip';s.textContent=t;b.appendChild(s)})}
+function analyse(){
+ const t=$('t').value,msg=$('msg');msg.textContent='';$('ok').textContent='';
+ if(!t.trim()){msg.textContent='Paste a caption first.';$('res').style.display='none';return}
+ const tags=[...new Set(t.match(/#[\p{L}\p{N}_]+/gu)||[])];
+ const ments=[...new Set(t.match(/@[\p{L}\p{N}_.]+/gu)||[])];
+ const links=[...new Set(t.match(/https?:\/\/\S+|www\.\S+/g)||[])];
+ const emo=[...new Set(t.match(/\p{Extended_Pictographic}\uFE0F?/gu)||[])];
+ const chars=[...t].length,lines=t.split('\n').length;
+ const words=t.trim().split(/\s+/).filter(Boolean).length;
+ const pct=Math.min(100,chars/LIMIT*100);
+ $('stats').innerHTML=[[chars.toLocaleString(),'characters'],[words.toLocaleString(),'words'],[tags.length,'hashtags'],[ments.length,'mentions'],[lines,'lines']].map(([v,l])=>'<div class="st"><b>'+v+'</b><span>'+l+'</span></div>').join('');
+ $('lenTxt').textContent=chars.toLocaleString()+' of '+LIMIT.toLocaleString()+' characters';
+ $('lenBar').style.width=pct+'%';$('lenBar').style.background=chars>LIMIT?'#dc2626':chars>LIMIT*.9?'#d97706':'';
+ $('lenWarn').textContent=chars>LIMIT?'Too long. Instagram allows '+LIMIT.toLocaleString()+' characters, so remove '+(chars-LIMIT).toLocaleString()+'.':'';
+ chip('tags',tags);chip('ments',ments);chip('links',links);chip('emo',emo.slice(0,40));
+ if(tags.length>30)$('lenWarn').textContent=(($('lenWarn').textContent?$('lenWarn').textContent+' ':''))+'You have '+tags.length+' hashtags. Instagram allows up to 30.';
+ const first=[...t].slice(0,FIRST).join('');
+ $('prev').innerHTML='';
+ const a=document.createElement('span');a.textContent=first;$('prev').appendChild(a);
+ if(chars>FIRST){const m=document.createElement('span');m.style.color='var(--mute)';m.textContent=[...t].slice(FIRST).join('').slice(0,0)+' … more';$('prev').appendChild(m)}
+ $('res').style.display='block';
+}
+$('go').onclick=analyse;
+$('t').oninput=()=>{if($('res').style.display==='block')analyse()};
+$('clr').onclick=()=>{$('t').value='';$('res').style.display='none';$('msg').textContent=''};
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText($('t').value);$('ok').textContent='Copied.'}catch(e){$('t').select();$('ok').textContent='Select the text and copy it.'}};
+</script></main></body></html>

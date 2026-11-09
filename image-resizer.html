@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Image Resizer</title>
+<style>
+:root{--bg:#f0f7ff;--ink:#14233b;--card:#fff;--line:#cfe0f7;--acc:#2563eb;--accI:#fff;--mute:#5a6f8f;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1322;--ink:#e3ecfb;--card:#131e33;--line:#26395f;--acc:#60a5fa;--accI:#06142e;--mute:#9ab0d0;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#0b1322;--ink:#e3ecfb;--card:#131e33;--line:#26395f;--acc:#60a5fa;--accI:#06142e;--mute:#9ab0d0;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:25px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 10px;font-size:15px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;margin-top:12px;box-shadow:0 14px 34px -18px rgba(10,30,80,.3)}
+button,input,select{font:inherit}
+button{padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .12s,filter .2s}
+button:hover:not(:disabled){filter:brightness(1.06)}button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+button.on{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.drop{display:block;border:2px dashed var(--acc);border-radius:16px;padding:20px;text-align:center;cursor:pointer;font-weight:600;color:var(--acc)}
+.drop input{display:none}
+.info{font-size:14px;color:var(--mute);margin-top:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media (max-width:480px){.grid{grid-template-columns:1fr}}
+label{font-size:14px;color:var(--mute);display:block;margin-bottom:4px}
+input[type=number],select{width:100%;padding:11px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips button{padding:7px 11px;font-size:14px;border-radius:999px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+input[type=range]{flex:1 1 160px;accent-color:var(--acc)}
+.res{margin-top:12px;background:var(--bg);border-radius:14px;padding:14px;font-size:15px}
+.res b{color:var(--good)}
+.msg{font-size:14px;color:var(--mute);margin-top:8px;min-height:20px}
+.err{color:#dc2626;font-size:15px;min-height:20px;margin-top:8px}
+.ok{color:var(--good);font-size:14px;min-height:20px;margin-top:6px}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 16px 28px}
+</style></head><body><main>
+<h1>Image Resizer 🖼️</h1>
+<p class="lead">Make a picture smaller or larger, and save it as a JPG, PNG or WebP. Everything happens on your device.</p>
+
+<div class="card">
+ <label class="drop">📁 Tap to choose a picture
+  <input id="file" type="file" accept="image/*">
+ </label>
+ <div class="info" id="orig"></div>
+
+ <div class="chips" id="presets"></div>
+
+ <div class="grid">
+  <div><label for="w">Width (px)</label><input id="w" type="number" min="1" step="1" disabled></div>
+  <div><label for="h">Height (px)</label><input id="h" type="number" min="1" step="1" disabled></div>
+ </div>
+ <div class="row">
+  <button id="lock" class="on" disabled>🔗 Keep proportions</button>
+ </div>
+
+ <div class="row">
+  <label for="fmt" style="margin:0">Format</label>
+  <select id="fmt" style="flex:0 0 auto;width:auto" disabled>
+   <option value="image/jpeg">JPG (smaller file)</option>
+   <option value="image/png">PNG (keeps sharpness)</option>
+   <option value="image/webp">WebP (small and sharp)</option>
+  </select>
+ </div>
+ <div class="row" id="qrow">
+  <label for="q" style="margin:0">Quality</label>
+  <input id="q" type="range" min="40" max="100" value="85" disabled>
+  <span class="info" id="qv">85%</span>
+ </div>
+
+ <div class="row"><button id="mManual" class="on">Manual size</button><button id="mTarget">Target file size</button></div>
+ <div class="row" id="trow" style="display:none"><label for="tk" style="margin:0">Max file size (KB)</label><input id="tk" type="number" min="1" step="1" value="10" style="width:120px;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)"><span class="info">The picture is shrunk until it fits this size.</span></div>
+ <div class="res" id="res" style="display:none"></div>
+ <div class="row"><button class="p" id="go" disabled>⚙️ Resize</button><button id="save" disabled>💾 Download</button></div>
+ <div class="msg" id="msg" aria-live="polite"></div>
+ <div class="err" id="err" aria-live="polite"></div>
+ <div class="ok" id="ok"></div>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px">Choose a picture. Type a new width or height, or tap a preset such as Instagram or a passport photo. With Keep proportions on, the other size changes to match, so the picture is not stretched. Pick a format and quality, tap Resize to see the new size and file size, then Download.</p>
+ <details><summary>Which format should I choose?</summary><p>JPG gives the smallest files for photos. PNG keeps sharp edges and text, but files are bigger. WebP is small and sharp, but some older apps won't open it.</p></details>
+ <details><summary>Why did my picture get smaller in file size but look a bit softer?</summary><p>Lower quality saves space by losing some detail. Raise the quality slider to keep more detail.</p></details>
+ <details><summary>Will enlarging make it sharper?</summary><p>No. Making a picture bigger than the original can only stretch the detail that is already there, so it may look soft.</p></details>
+ <details><summary>Is my picture uploaded?</summary><p>No. Resizing happens in your browser, and nothing is stored after you close the page.</p></details>
+</section>
+</main>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let img=null,origSize=0,origName='image',keep=true,ratio=1,outBlob=null,outURL=null,mode='manual';
+const PRESETS=[['Instagram square',1080,1080],['Instagram portrait',1080,1350],['Facebook cover',820,312],['YouTube thumbnail',1280,720],['Passport (35 × 45 mm, ~413 × 531)',413,531],['Phone wallpaper',1080,1920],['Half size',null,null]];
+function fmtBytes(b){return b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB'}
+function enable(on){['w','h','fmt','q','go','lock'].forEach(i=>$(i).disabled=!on)}
+PRESETS.forEach(([name,w,h])=>{const b=document.createElement('button');b.textContent=name;b.onclick=()=>{if(!img)return;
+ if(w===null){$('w').value=Math.round(img.width/2);$('h').value=Math.round(img.height/2);}
+ else if(keep){const s=Math.min(w/img.width,h/img.height);$('w').value=Math.round(img.width*s);$('h').value=Math.round(img.height*s);}
+ else{$('w').value=w;$('h').value=h}
+ outBlob=null;$('save').disabled=true;$('res').style.display='none'};
+ $('presets').appendChild(b)});
+$('file').onchange=e=>{
+ const f=e.target.files[0];$('err').textContent='';$('ok').textContent='';
+ if(!f||!f.type.startsWith('image/')){$('err').textContent='Please choose an image.';return}
+ origSize=f.size;origName=f.name.replace(/\.[^.]+$/,'')||'image';
+ const im=new Image();im.onload=()=>{img=im;ratio=im.width/im.height;$('w').value=im.width;$('h').value=im.height;
+  $('orig').textContent='Original: '+im.width+' × '+im.height+' px, '+fmtBytes(origSize);enable(true);outBlob=null;$('save').disabled=true;$('res').style.display='none';$('msg').textContent='Set a size, then tap Resize.'};
+ im.onerror=()=>{$('err').textContent='Could not open that picture.'};
+ im.src=URL.createObjectURL(f);
+};
+$('lock').onclick=()=>{keep=!keep;$('lock').classList.toggle('on',keep);$('lock').textContent=keep?'🔗 Keep proportions':'🔓 Free size'};
+$('w').oninput=()=>{if(!img)return;if(keep){$('h').value=Math.max(1,Math.round(+$('w').value/ratio))}};
+$('h').oninput=()=>{if(!img)return;if(keep){$('w').value=Math.max(1,Math.round(+$('h').value*ratio))}};
+$('q').oninput=()=>{$('qv').textContent=$('q').value+'%'};
+function updateQ(){const off=$('fmt').value==='image/png'||!img||mode==='target';$('qrow').style.opacity=off?'.4':'1';$('q').disabled=off}
+function setMode(m){mode=m;$('mManual').classList.toggle('on',m==='manual');$('mTarget').classList.toggle('on',m==='target');$('trow').style.display=m==='target'?'flex':'none';updateQ()}
+$('mManual').onclick=()=>setMode('manual');$('mTarget').onclick=()=>setMode('target');
+$('fmt').onchange=updateQ;
+function makeCanvas(w,h){const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';cx.drawImage(img,0,0,w,h);return cv}
+function toBlob(cv,type,q){return new Promise(r=>cv.toBlob(b=>r(b),type,q))}
+async function fitTarget(type,w,h,limit){
+ for(let step=0;step<20;step++){
+  const cv=makeCanvas(w,h);
+  if(type==='image/png'){
+   const b=await toBlob(cv,type);
+   if(b&&b.size<=limit)return {b,w,h,q:null};
+  }else{
+   let lo=0.05,hi=1,found=null;
+   const lowest=await toBlob(cv,type,lo);
+   if(lowest&&lowest.size<=limit){
+    for(let i=0;i<9;i++){const mid=(lo+hi)/2;const b=await toBlob(cv,type,mid);
+     if(b&&b.size<=limit){found={b,q:mid};lo=mid}else hi=mid}
+    if(found)return {b:found.b,w,h,q:found.q};
+   }
+  }
+  w=Math.max(1,Math.round(w*0.85));h=Math.max(1,Math.round(h*0.85));
+  if(w<=1||h<=1)break;
+ }
+ return null;
+}
+$('go').onclick=async()=>{
+ if(!img)return;
+ const w=Math.round(+$('w').value),h=Math.round(+$('h').value);
+ if(!(w>0&&h>0)||w>8000||h>8000){$('err').textContent='Enter a width and height between 1 and 8000 pixels.';return}
+ $('err').textContent='';
+ const type=$('fmt').value;
+ $('go').disabled=true;$('msg').textContent='Working…';
+ try{
+  if(mode==='target'){
+   const kb=+$('tk').value;
+   if(!(kb>0)){$('err').textContent='Enter a maximum file size in KB, for example 10.';return}
+   const limit=Math.round(kb*1024);
+   const r=await fitTarget(type,w,h,limit);
+   if(!r){$('err').textContent='Could not reach '+kb+' KB, even with a much smaller picture. Try a smaller size or the JPG format.';return}
+   outBlob=r.b;if(outURL)URL.revokeObjectURL(outURL);outURL=URL.createObjectURL(r.b);
+   const pct=Math.round((1-r.b.size/origSize)*100);
+   const qtxt=r.q===null?'':' at '+Math.round(r.q*100)+'% quality';
+   $('res').style.display='block';
+   $('res').innerHTML='Target: under <b>'+kb+' KB</b>. Result: <b>'+r.w+' × '+r.h+' px</b>, '+fmtBytes(r.b.size)+qtxt+(pct>0?' (<b>'+pct+'% smaller</b>)':'')+(r.w!==w?'<br><span class="info">Picture was made smaller to fit the limit.</span>':'');
+   $('save').disabled=false;$('msg').textContent='Ready. Tap Download to save.';
+  }else{
+   const q=type==='image/png'?undefined:(+$('q').value)/100;
+   const cv=makeCanvas(w,h);
+   const b=await toBlob(cv,type,q);
+   if(!b){$('err').textContent='Could not make that image. Try a smaller size.';return}
+   outBlob=b;if(outURL)URL.revokeObjectURL(outURL);outURL=URL.createObjectURL(b);
+   const pct=Math.round((1-b.size/origSize)*100);
+   $('res').style.display='block';
+   $('res').innerHTML='New size: <b>'+w+' × '+h+' px</b>, '+fmtBytes(b.size)+(pct>0?' (<b>'+pct+'% smaller</b>)':' (<b>larger</b> than the original)');
+   $('save').disabled=false;$('msg').textContent='Ready. Tap Download to save.';
+  }
+ }finally{$('go').disabled=false}
+};
+$('save').onclick=async()=>{
+ if(!outBlob)return;
+ const ext=$('fmt').value==='image/jpeg'?'jpg':$('fmt').value==='image/png'?'png':'webp';
+ const name=origName+'-resized.'+ext;
+ try{const d=await claude.use('downloads');if(!d)throw 0;await d.save({filename:name,data:new Uint8Array(await outBlob.arrayBuffer())});$('ok').textContent='Saved '+name+'.'}
+ catch(e){const a=document.createElement('a');a.href=outURL;a.download=name;document.body.appendChild(a);a.click();a.remove();$('ok').textContent='Downloaded '+name+'.'}
+};
+updateQ();
+</script></main></body></html>

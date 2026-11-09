@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tags Extractor</title>
+<style>
+:root{--bg:#f2fbf8;--ink:#12302a;--card:#fff;--line:#cfeee4;--acc:#0d9488;--accI:#fff;--mute:#5a7a72;--good:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1a17;--ink:#dcf5ee;--card:#122621;--line:#24463d;--acc:#2dd4bf;--accI:#042320;--mute:#97bdb3;--good:#4ade80}}
+:root[data-theme="dark"]{--bg:#0b1a17;--ink:#dcf5ee;--card:#122621;--line:#24463d;--acc:#2dd4bf;--accI:#042320;--mute:#97bdb3;--good:#4ade80}
+html{color-scheme:light dark}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:25px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 12px;font-size:15px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;margin-top:12px}
+textarea{width:100%;min-height:150px;font:inherit;font-size:16px;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);resize:vertical}
+button,select,input{font:inherit}
+button{padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:var(--accI);font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+select{padding:9px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:15px;cursor:pointer;user-select:none}
+.chip.on{background:var(--acc);color:var(--accI);border-color:var(--acc)}
+.chip small{opacity:.7;font-size:12px}
+.lbl{font-size:14px;font-weight:600;margin:12px 0 2px}
+.msg{color:var(--mute);font-size:14px;margin-top:8px;min-height:20px}
+.ok{color:var(--good);font-size:14px;margin-top:6px;min-height:20px}
+.out{width:100%;min-height:90px;margin-top:8px;font:inherit;font-size:15px;padding:10px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);resize:vertical}
+.help{margin-top:22px;font-size:15px;line-height:1.5}
+.help details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0;background:var(--card)}
+.help summary{cursor:pointer;font-weight:600}.help details p{margin:6px 0 2px}
+footer{text-align:left;font-size:14px;opacity:.75;padding:20px 16px 28px}
+</style></head><body><main>
+<h1>Tags Extractor 🏷️</h1>
+<p class="lead">Paste a title, caption or description. We'll pull out the key words and hashtags to use as tags.</p>
+
+<div class="card">
+ <textarea id="t" placeholder="Paste your video title, caption or description here…" aria-label="Your text"></textarea>
+ <div class="row">
+  <label class="msg" for="n">Max tags</label>
+  <select id="n"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select>
+  <button class="p" id="go">Extract tags</button>
+  <button id="clr">Clear</button>
+ </div>
+ <div class="msg" id="msg" aria-live="polite"></div>
+</div>
+
+<div class="card" id="res" style="display:none">
+ <div class="lbl">Tags (tap to turn on or off)</div>
+ <div class="chips" id="chips"></div>
+ <div class="lbl">Ready to copy</div>
+ <textarea class="out" id="copy" readonly></textarea>
+ <div class="row">
+  <button class="p" id="cp">Copy tags</button>
+  <button id="all">Select all</button>
+ </div>
+ <div class="ok" id="ok"></div>
+</div>
+
+<section class="help">
+ <h2 style="font-size:18px;margin:14px 0 6px">How to use</h2>
+ <p style="margin:0 0 6px">Paste your text, choose how many tags you want, and tap Extract tags. The most useful words and any hashtags you wrote appear as chips. Tap a chip to leave it out. Then copy the list into your platform.</p>
+ <details><summary>Where do the tags come from?</summary><p>Words that appear often in your text and are not common filler words like "the" or "and". Hashtags you already wrote are always included.</p></details>
+ <details><summary>Why are some words missing?</summary><p>Very short words and common words are skipped. You can add any word yourself by typing it into the copy box after you copy.</p></details>
+ <details><summary>Will these tags help my views?</summary><p>They describe your content, which helps people find it. No tool can guarantee results, so choose tags that really match the video.</p></details>
+ <details><summary>Does it save my text?</summary><p>No. Nothing is stored after you close the page.</p></details>
+</section>
+</main>
+<footer style="text-align:left;padding:20px 16px 28px;font:14px system-ui,sans-serif;opacity:.8">© 2026 Adil Chandia · <a href="privacy.html" style="color:inherit;margin-right:12px">Privacy Policy</a><a href="terms.html" style="color:inherit;margin-right:12px">Terms of Use</a><a href="copyright.html" style="color:inherit">Copyright &amp; Disclaimer</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const STOP=new Set('a an and are as at be but by for from has have he her his i if in into is it its just me my no not of on or our out she so that the their them then there these they this to up us was we were what when which who will with you your yours about all also can could do does did get got has had how more most new now one only other over some such than too very via just like make made say said see go going'.split(' '));
+let chips=[];
+function extract(){
+ const txt=$('t').value;
+ const max=+$('n').value;
+ const hashtags=[...new Set((txt.match(/#[\p{L}\p{N}_]+/gu)||[]).map(h=>h.toLowerCase()))];
+ const words=(txt.toLowerCase().match(/[\p{L}\p{N}]+/gu)||[]).filter(w=>w.length>2&&!STOP.has(w)&&!/^\d+$/.test(w));
+ const freq={};words.forEach(w=>freq[w]=(freq[w]||0)+1);
+ const ranked=Object.keys(freq).sort((a,b)=>freq[b]-freq[a]||txt.indexOf(a)-txt.indexOf(b)).map(w=>'#'+w);
+ const pick=[...hashtags,...ranked.filter(w=>!hashtags.includes(w))].slice(0,max);
+ chips=pick.map(t=>({t,on:true}));
+ return pick.length;
+}
+function render(){
+ const box=$('chips');box.textContent='';
+ chips.forEach(c=>{const s=document.createElement('span');s.className='chip'+(c.on?' on':'');s.textContent=c.t;s.onclick=()=>{c.on=!c.on;render()};box.appendChild(s)});
+ const on=chips.filter(c=>c.on).map(c=>c.t);
+ $('copy').value=on.join(' ');
+}
+$('go').onclick=()=>{
+ const msg=$('msg');msg.textContent='';$('ok').textContent='';
+ if(!$('t').value.trim()){msg.textContent='Paste some text first.';$('res').style.display='none';return}
+ const n=extract();
+ if(!n){msg.textContent='No useful words found. Try adding more text.';$('res').style.display='none';return}
+ render();$('res').style.display='block';
+};
+$('copy').oninput=()=>{};
+$('cp').onclick=async()=>{const v=$('copy').value;try{await navigator.clipboard.writeText(v);$('ok').textContent='Copied.'}catch(e){$('copy').select();$('ok').textContent='Select the text and copy it.'}};
+$('all').onclick=()=>{$('copy').focus();$('copy').select();$('ok').textContent='Selected. Copy it now.'};
+$('clr').onclick=()=>{$('t').value='';$('res').style.display='none';$('msg').textContent=''};
+$('t').onkeydown=e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))$('go').click()};
+</script></main></body></html>
